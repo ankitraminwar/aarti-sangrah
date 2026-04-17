@@ -1,0 +1,14 @@
+# Default owners for the repository
+
+- @ankitraminwar
+
+# Source code
+
+/src/ @ankitraminwar
+/app/ @ankitraminwar
+
+# Config files
+
+/app.json @ankitraminwar
+/eas.json @ankitraminwar
+/package.json @ankitraminwar

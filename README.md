@@ -1,50 +1,90 @@
-# Welcome to your Expo app 👋
+# Aarti Sangrah — The Sacred Editorial
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An offline-first mobile app for Hindu devotional hymns (aartis), built with Expo and React Native.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Offline-First** — All aartis stored locally in SQLite. Read anytime, anywhere.
+- **Multi-Language** — Hindi, Marathi, and English interface
+- **Favorites** — Save aartis for quick access
+- **Share & Copy** — Share aartis as images or copy to clipboard
+- **Customizable** — Light/dark theme, adjustable text size
+- **Daily Aarti** — Featured aarti on the home screen each day
+- **Search** — Find aartis by name, deity, or content
+- **Categories** — Browse by deity or occasion
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+| Layer         | Technology                        |
+| ------------- | --------------------------------- |
+| Framework     | Expo SDK 54 / React Native 0.81.5 |
+| Language      | TypeScript 5.9 (strict)           |
+| Navigation    | expo-router (file-based)          |
+| Database      | expo-sqlite (WAL mode)            |
+| State         | Zustand                           |
+| Data Fetching | @tanstack/react-query             |
+| Design System | Stitch MCP "The Sacred Editorial" |
+| Lists         | @shopify/flash-list v2            |
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+### Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js >= 18
+- Yarn
+- Android Studio or Xcode
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Setup
 
 ```bash
-npm run reset-project
+# Install dependencies
+yarn install
+
+# Start the development server
+yarn start
+
+# Run on Android
+yarn android
+
+# Run on iOS
+yarn ios
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Scripts
 
-## Learn more
+| Command             | Description                    |
+| ------------------- | ------------------------------ |
+| `yarn start`        | Start Expo dev server          |
+| `yarn android`      | Run on Android device/emulator |
+| `yarn ios`          | Run on iOS simulator           |
+| `yarn lint`         | Run ESLint                     |
+| `yarn format`       | Format code with Prettier      |
+| `yarn format:check` | Check formatting               |
+| `npx tsc --noEmit`  | TypeScript type check          |
 
-To learn more about developing your project with Expo, look at the following resources:
+## Project Structure
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+app/              # Expo Router pages
+src/
+├── components/   # Reusable UI components
+├── screens/      # Screen components
+├── constants/    # Theme, config, spacing tokens
+├── database/     # SQLite schema and CRUD
+├── store/        # Zustand state stores
+├── hooks/        # Custom React hooks
+├── i18n/         # Localization strings
+├── services/     # CDN sync service
+├── types/        # TypeScript types
+└── utils/        # Utility functions
+```
 
-## Join the community
+See [AGENT.md](AGENT.md) for detailed architecture documentation.
 
-Join our community of developers creating universal apps.
+## Contributing
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+See [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) for development guidelines.
+
+## License
+
+All rights reserved.

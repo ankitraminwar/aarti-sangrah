@@ -1,24 +1,123 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import {
+  NotoSerif_400Regular,
+  NotoSerif_700Bold,
+  useFonts as useNotoSerif,
+} from "@expo-google-fonts/noto-serif";
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  useFonts as useJakarta,
+} from "@expo-google-fonts/plus-jakarta-sans";
+import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import React, { useCallback, useEffect, useState } from "react";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { SplashOverlay } from "@/src/components";
+import { initDatabase } from "@/src/database";
+import { useTheme } from "@/src/hooks";
+import { useAppStore, useFavoritesStore } from "@/src/store";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+    },
+  },
+});
+
+function RootNavigator() {
+  const { colors, isDark } = useTheme();
+
+  const navTheme = isDark
+    ? {
+        ...DarkTheme,
+        colors: {
+          ...DarkTheme.colors,
+          background: colors.surface,
+          card: colors.surface,
+          text: colors.onSurface,
+          border: "transparent",
+          primary: colors.primary,
+          notification: colors.primary,
+        },
+      }
+    : {
+        ...DefaultTheme,
+        colors: {
+          ...DefaultTheme.colors,
+          background: colors.surface,
+          card: colors.surface,
+          text: colors.onSurface,
+          border: "transparent",
+          primary: colors.primary,
+          notification: colors.primary,
+        },
+      };
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <ThemeProvider value={navTheme}>
+      <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="aarti/[id]" options={{ animation: "slide_from_bottom" }} />
+        <Stack.Screen name="category/[name]" />
+        <Stack.Screen name="help" />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? "light" : "dark"} />
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  const [dbReady, setDbReady] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
+
+  const [serifLoaded] = useNotoSerif({
+    NotoSerif_400Regular,
+    NotoSerif_700Bold,
+  });
+  const [jakartaLoaded] = useJakarta({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+  });
+
+  useEffect(() => {
+    initDatabase()
+      .then(() => useAppStore.getState().loadPersistedSettings())
+      .then(() => useFavoritesStore.getState().loadFavorites())
+      .then(() => setDbReady(true));
+  }, []);
+
+  useEffect(() => {
+    if (serifLoaded && jakartaLoaded && dbReady) {
+      // Hide native splash and let our custom SplashOverlay take over
+      SplashScreen.hideAsync();
+    }
+  }, [serifLoaded, jakartaLoaded, dbReady]);
+
+  const handleSplashFinished = useCallback(() => {
+    setSplashDone(true);
+  }, []);
+
+  // Show nothing while native splash is still hiding
+  if (!serifLoaded || !jakartaLoaded || !dbReady) {
+    return null;
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootNavigator />
+      {!splashDone && <SplashOverlay onFinished={handleSplashFinished} />}
+    </QueryClientProvider>
   );
 }
