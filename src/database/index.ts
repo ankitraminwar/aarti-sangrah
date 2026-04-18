@@ -103,26 +103,28 @@ export async function upsertAartis(aartis: readonly Aarti[]): Promise<void> {
   `);
 
   try {
-    for (const a of aartis) {
-      await stmt.executeAsync({
-        $id: a.id,
-        $title: a.title,
-        $category: a.category,
-        $language: a.language,
-        $slug: a.slug,
-        $content: a.content,
-        $description: a.description,
-        $order: a.order,
-        $tags: a.tags,
-        $isFeatured: a.isFeatured ? 1 : 0,
-        $updatedAt: a.updatedAt,
-        $author: a.author,
-        $type: a.type,
-        $searchableText: a.searchableText,
-        $versesJson: a.versesJson,
-        $translationsJson: a.translationsJson,
-      });
-    }
+    await database.withTransactionAsync(async () => {
+      for (const a of aartis) {
+        await stmt.executeAsync({
+          $id: a.id,
+          $title: a.title,
+          $category: a.category,
+          $language: a.language,
+          $slug: a.slug,
+          $content: a.content,
+          $description: a.description,
+          $order: a.order,
+          $tags: a.tags,
+          $isFeatured: a.isFeatured ? 1 : 0,
+          $updatedAt: a.updatedAt,
+          $author: a.author,
+          $type: a.type,
+          $searchableText: a.searchableText,
+          $versesJson: a.versesJson,
+          $translationsJson: a.translationsJson,
+        });
+      }
+    });
   } finally {
     await stmt.finalizeAsync();
   }

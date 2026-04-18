@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AartiCard, AppText, CategoryCard, LoadingView, SectionHeader } from "@/src/components";
+import { AartiCard, AppText, CategoryCard, DataSyncOverlay, SectionHeader } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getAllAartis, getCategories, getFeaturedAartis, getRecentAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
@@ -81,7 +81,7 @@ export function HomeScreen() {
     featured.length > 0 ? featured[Math.floor(Date.now() / 86400000) % featured.length] : null;
 
   if (isLoading && allAartis.length === 0) {
-    return <LoadingView message={t("home.loading")} />;
+    return <DataSyncOverlay />;
   }
 
   return (

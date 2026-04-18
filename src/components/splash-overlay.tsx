@@ -35,7 +35,7 @@ export function SplashOverlay({ onFinished }: SplashOverlayProps) {
       }).start(({ finished }) => {
         if (finished) onFinished();
       });
-    }, 1600);
+    }, 3000);
 
     return () => clearTimeout(holdTimer);
   }, [fadeAnim, scaleAnim, onFinished]);
