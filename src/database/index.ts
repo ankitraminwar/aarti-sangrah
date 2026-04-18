@@ -3,6 +3,7 @@ import type { Aarti, RecentAarti } from "@/src/types";
 import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
+let ftsSupported = false;
 
 export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
@@ -69,6 +70,44 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
     );
   } catch {
     // Column already exists – ignore
+  }
+
+  // FTS5 Initialization
+  try {
+    await database.execAsync(`
+      CREATE VIRTUAL TABLE IF NOT EXISTS aartis_fts USING fts5(
+        title, searchableText, category, tags, translationsJson,
+        content='aartis', content_rowid='rowid'
+      );
+
+      DROP TRIGGER IF EXISTS aartis_ai;
+      DROP TRIGGER IF EXISTS aartis_ad;
+      DROP TRIGGER IF EXISTS aartis_au;
+
+      CREATE TRIGGER aartis_ai AFTER INSERT ON aartis BEGIN
+        INSERT INTO aartis_fts(rowid, title, searchableText, category, tags, translationsJson) 
+        VALUES (new.rowid, new.title, new.searchableText, new.category, new.tags, new.translationsJson);
+      END;
+
+      CREATE TRIGGER aartis_ad AFTER DELETE ON aartis BEGIN
+        INSERT INTO aartis_fts(aartis_fts, rowid, title, searchableText, category, tags, translationsJson) 
+        VALUES ('delete', old.rowid, old.title, old.searchableText, old.category, old.tags, old.translationsJson);
+      END;
+
+      CREATE TRIGGER aartis_au AFTER UPDATE ON aartis BEGIN
+        INSERT INTO aartis_fts(aartis_fts, rowid, title, searchableText, category, tags, translationsJson) 
+        VALUES ('delete', old.rowid, old.title, old.searchableText, old.category, old.tags, old.translationsJson);
+        INSERT INTO aartis_fts(rowid, title, searchableText, category, tags, translationsJson) 
+        VALUES (new.rowid, new.title, new.searchableText, new.category, new.tags, new.translationsJson);
+      END;
+    `);
+    
+    // Automatically rebuild the index to ensure consistency with existing records
+    await database.execAsync("INSERT INTO aartis_fts(aartis_fts) VALUES ('rebuild')");
+    ftsSupported = true;
+  } catch (err) {
+    console.warn("FTS5 not supported in this environment. Falling back to wildcard search.");
+    ftsSupported = false;
   }
 }
 
@@ -165,6 +204,28 @@ export async function getCategories(): Promise<{ name: string; count: number }[]
 
 export async function searchAartis(query: string): Promise<Aarti[]> {
   const database = await getDatabase();
+  
+  if (ftsSupported) {
+    const cleanQuery = query.replace(/[*"^()[\]{}]/g, "").trim();
+    if (!cleanQuery) return [];
+    
+    const tokens = cleanQuery.split(/\s+/).filter(Boolean);
+    const ftsPattern = tokens.map((t) => `"${t}"*`).join(" AND ");
+    
+    try {
+      const rows = await database.getAllAsync<Record<string, unknown>>(
+        `SELECT a.* FROM aartis_fts f
+         JOIN aartis a ON f.rowid = a.rowid
+         WHERE aartis_fts MATCH $q
+         ORDER BY a."order" ASC`,
+        { $q: ftsPattern },
+      );
+      return rows.map(mapRowToAarti);
+    } catch {
+      // Ignore inner crash and fallback
+    }
+  }
+
   const pattern = `%${query}%`;
   const rows = await database.getAllAsync<Record<string, unknown>>(
     `SELECT * FROM aartis
