@@ -117,15 +117,9 @@ export function HomeScreen() {
           <View style={styles.headerActions}>
             <MaterialIcons
               name="search"
-              size={26}
+              size={28}
               color={colors.onSurface}
               onPress={() => router.push("/search")}
-            />
-            <MaterialIcons
-              name="settings"
-              size={26}
-              color={colors.onSurface}
-              onPress={() => router.push("/settings")}
             />
           </View>
         </View>

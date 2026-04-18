@@ -30,6 +30,9 @@ export function AartiDetailScreen() {
   const shareRef = useRef<ViewShot>(null);
   const copyShareRef = useRef<ViewShot>(null);
   const [copied, setCopied] = useState(false);
+  const [localDelta, setLocalDelta] = useState(0);
+  const decreaseFont = useCallback(() => setLocalDelta((d) => Math.max(-6, d - 2)), []);
+  const increaseFont = useCallback(() => setLocalDelta((d) => Math.min(8, d + 2)), []);
 
   useEffect(() => {
     loadFavorites();
@@ -94,6 +97,29 @@ export function AartiDetailScreen() {
           <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
         </Pressable>
         <View style={styles.toolbarActions}>
+          <Pressable onPress={decreaseFont} hitSlop={12} style={styles.fontSizeBtn}>
+            <AppText
+              style={[
+                styles.fontSizeLabel,
+                {
+                  color: localDelta <= -6 ? colors.outline : colors.onSurfaceVariant,
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              A-
+            </AppText>
+          </Pressable>
+          <Pressable onPress={increaseFont} hitSlop={12} style={styles.fontSizeBtn}>
+            <AppText
+              style={[
+                styles.fontSizeLabel,
+                { color: localDelta >= 8 ? colors.outline : colors.onSurface, fontWeight: "bold" },
+              ]}
+            >
+              A+
+            </AppText>
+          </Pressable>
           <Pressable onPress={handleCopy} hitSlop={12}>
             {copied ? (
               <Animated.View entering={FadeInUp.duration(250)} exiting={FadeOut.duration(200)}>
@@ -130,8 +156,8 @@ export function AartiDetailScreen() {
           <AppText
             variant="displayLg"
             style={{
-              fontSize: fontConfig.heading,
-              lineHeight: fontConfig.heading * 1.3,
+              fontSize: fontConfig.heading + localDelta,
+              lineHeight: (fontConfig.heading + localDelta) * 1.3,
             }}
           >
             {getLocalizedTitle(aarti, language)}
@@ -172,8 +198,8 @@ export function AartiDetailScreen() {
                       key={`line-${vIdx}-${lIdx}`}
                       variant="bodyLg"
                       style={{
-                        fontSize: fontConfig.body,
-                        lineHeight: fontConfig.body * fontConfig.lineHeight,
+                        fontSize: fontConfig.body + localDelta,
+                        lineHeight: (fontConfig.body + localDelta) * fontConfig.lineHeight,
                         ...(verse.type === "chorus" ? { color: colors.primary } : {}),
                       }}
                     >
@@ -187,8 +213,8 @@ export function AartiDetailScreen() {
             <AppText
               variant="bodyLg"
               style={{
-                fontSize: fontConfig.body,
-                lineHeight: fontConfig.body * fontConfig.lineHeight,
+                fontSize: fontConfig.body + localDelta,
+                lineHeight: (fontConfig.body + localDelta) * fontConfig.lineHeight,
               }}
             >
               {aarti.content}
@@ -350,6 +376,15 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
     marginBottom: Spacing.xs,
+  },
+  fontSizeBtn: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fontSizeLabel: {
+    fontSize: 13,
+    fontFamily: "PlusJakartaSans_600SemiBold",
+    letterSpacing: 0.5,
   },
   bottomSpacer: {
     height: Spacing.huge + Spacing.xxxl,

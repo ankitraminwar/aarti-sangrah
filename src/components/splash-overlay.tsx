@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Dimensions, StyleSheet, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialIcons } from "@expo/vector-icons";
 
-import { Spacing } from "@/src/constants";
+import { Spacing, Typography } from "@/src/constants";
 import { useTheme } from "@/src/hooks";
 
 import { AppText } from "./app-text";
@@ -13,22 +15,22 @@ interface SplashOverlayProps {
 }
 
 export function SplashOverlay({ onFinished }: SplashOverlayProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+  const scaleAnim = useRef(new Animated.Value(0.92)).current;
 
   useEffect(() => {
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
-      tension: 60,
-      friction: 8,
+      tension: 50,
+      friction: 9,
     }).start();
 
     const holdTimer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 500,
+        duration: 400,
         useNativeDriver: true,
       }).start(({ finished }) => {
         if (finished) onFinished();
@@ -38,53 +40,58 @@ export function SplashOverlay({ onFinished }: SplashOverlayProps) {
     return () => clearTimeout(holdTimer);
   }, [fadeAnim, scaleAnim, onFinished]);
 
-  const glowColor = isDark ? "rgba(255, 153, 51, 0.08)" : "rgba(255, 153, 51, 0.12)";
-
   return (
     <Animated.View
       style={[styles.container, { opacity: fadeAnim, backgroundColor: colors.surface }]}
     >
-      {/* Radial glow behind Om symbol */}
-      <View style={[styles.glowCircle, { backgroundColor: glowColor }]} />
+      <LinearGradient
+        colors={[colors.primaryContainer, colors.surfaceContainerLowest, colors.surface]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[StyleSheet.absoluteFillObject, { opacity: 0.8 }]}
+      />
+
+      <LinearGradient
+        colors={["rgba(255,255,255,0.4)", "transparent"]}
+        style={styles.topGradient}
+      />
+
+      <LinearGradient
+        colors={[`${colors.primary}0D`, "transparent"]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.bottomGradient}
+        pointerEvents="none"
+      />
+
+      {/* Spacer for Top */}
+      <View style={{ height: "16%" }} />
 
       <Animated.View style={[styles.content, { transform: [{ scale: scaleAnim }] }]}>
-        {/* Om symbol */}
+        <AppText style={[{ ...Typography.displayLg, color: colors.primary, textAlign: "center" }]}>
+          ॐ सर्वे भवन्तु सुखिनः
+        </AppText>
+
         <AppText
           style={[
-            styles.omText,
             {
-              color: colors.primaryContainer,
-              textShadowColor: isDark ? "rgba(255, 153, 51, 0.4)" : "rgba(255, 153, 51, 0.6)",
+              ...Typography.titleLg,
+              color: colors.onSurfaceVariant,
+              textAlign: "center",
+              opacity: 0.8,
             },
           ]}
         >
-          ॐ
-        </AppText>
-
-        {/* Sanskrit blessing */}
-        <AppText
-          style={[
-            styles.sanskritText,
-            { color: isDark ? colors.onSurfaceVariant : colors.onSurfaceVariant },
-          ]}
-        >
-          सर्वे भवन्तु सुखिनः
-        </AppText>
-
-        {/* English translation */}
-        <AppText style={[styles.subtitleText, { color: colors.outline }]}>
           May all beings be happy and peaceful.
         </AppText>
       </Animated.View>
 
-      {/* App name at bottom */}
-      <View style={styles.appNameRow}>
-        <AppText style={[styles.appNameText, { color: colors.onSurfaceVariant }]}>
-          Aarti Sangrah
-        </AppText>
-        <AppText style={[styles.taglineText, { color: colors.outline }]}>
-          The Sacred Editorial
-        </AppText>
+      <View style={styles.footer}>
+        <View style={styles.logoRow}>
+          <MaterialIcons name="menu-book" size={30} color={colors.primary} />
+          <AppText style={[styles.appName, { color: colors.onSurface }]}>Aarti Sangrah</AppText>
+        </View>
+        <View style={[styles.indicator, { backgroundColor: colors.primary }]} />
       </View>
     </Animated.View>
   );
@@ -96,51 +103,55 @@ const styles = StyleSheet.create({
     width,
     height,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     zIndex: 9999,
+    overflow: "hidden",
   },
-  glowCircle: {
+  topGradient: {
     position: "absolute",
-    width: 300,
-    height: 300,
-    borderRadius: 150,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 128,
+  },
+  bottomGradient: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 192,
   },
   content: {
+    flex: 1,
     alignItems: "center",
-    gap: Spacing.md,
+    justifyContent: "center",
+    paddingHorizontal: Spacing.xxl,
+    gap: Spacing.xl,
+    maxWidth: 672,
+    zIndex: 10,
   },
-  omText: {
-    fontSize: 96,
-    fontFamily: "NotoSerif_700Bold",
-    lineHeight: 120,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 24,
-  },
-  sanskritText: {
-    fontSize: 22,
-    fontFamily: "NotoSerif_400Regular",
-    letterSpacing: 0.5,
-    marginTop: Spacing.sm,
-  },
-  subtitleText: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans_400Regular",
-    letterSpacing: 0.3,
-  },
-  appNameRow: {
-    position: "absolute",
-    bottom: 56,
+  footer: {
+    zIndex: 10,
+    paddingBottom: 48,
     alignItems: "center",
-    gap: Spacing.xs,
+    justifyContent: "flex-end",
+    width: "100%",
   },
-  appNameText: {
-    fontSize: 16,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    letterSpacing: 1.5,
+  logoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 8,
   },
-  taglineText: {
-    fontSize: 12,
-    fontFamily: "PlusJakartaSans_400Regular",
+  appName: {
+    ...Typography.headlineMd,
     letterSpacing: 0.5,
+  },
+  indicator: {
+    height: 4,
+    width: 48,
+    borderRadius: 9999,
+    marginTop: 8,
+    opacity: 0.2,
   },
 });

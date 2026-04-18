@@ -72,7 +72,7 @@ export function AartiCard({
               <MaterialIcons
                 name={isFavorite ? "favorite" : "favorite-border"}
                 size={22}
-                color={isDark ? colors.primary : colors.onPrimary}
+                color={colors.primary}
               />
             </Pressable>
           )}

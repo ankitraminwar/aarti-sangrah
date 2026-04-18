@@ -93,31 +93,35 @@ export default function RootLayout() {
 
   useEffect(() => {
     initDatabase()
-      .then(() => useAppStore.getState().loadPersistedSettings())
-      .then(() => useFavoritesStore.getState().loadFavorites())
+      .then(() =>
+        Promise.all([
+          useAppStore.getState().loadPersistedSettings(),
+          useFavoritesStore.getState().loadFavorites(),
+        ]),
+      )
       .then(() => setDbReady(true));
   }, []);
 
   useEffect(() => {
-    if (serifLoaded && jakartaLoaded && dbReady) {
-      // Hide native splash and let our custom SplashOverlay take over
+    if (serifLoaded && jakartaLoaded) {
+      // Hide native splash as soon as fonts are ready — don't block on DB
       SplashScreen.hideAsync();
     }
-  }, [serifLoaded, jakartaLoaded, dbReady]);
+  }, [serifLoaded, jakartaLoaded]);
 
   const handleSplashFinished = useCallback(() => {
     setSplashDone(true);
   }, []);
 
-  // Show nothing while native splash is still hiding
-  if (!serifLoaded || !jakartaLoaded || !dbReady) {
+  // Show nothing while fonts are still loading
+  if (!serifLoaded || !jakartaLoaded) {
     return null;
   }
 
   return (
     <QueryClientProvider client={queryClient}>
       <RootNavigator />
-      {!splashDone && <SplashOverlay onFinished={handleSplashFinished} />}
+      {(!splashDone || !dbReady) && <SplashOverlay onFinished={handleSplashFinished} />}
     </QueryClientProvider>
   );
 }
