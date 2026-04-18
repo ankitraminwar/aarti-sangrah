@@ -101,7 +101,7 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
         VALUES (new.rowid, new.title, new.searchableText, new.category, new.tags, new.translationsJson);
       END;
     `);
-    
+
     // Automatically rebuild the index to ensure consistency with existing records
     await database.execAsync("INSERT INTO aartis_fts(aartis_fts) VALUES ('rebuild')");
     ftsSupported = true;
@@ -204,14 +204,14 @@ export async function getCategories(): Promise<{ name: string; count: number }[]
 
 export async function searchAartis(query: string): Promise<Aarti[]> {
   const database = await getDatabase();
-  
+
   if (ftsSupported) {
     const cleanQuery = query.replace(/[*"^()[\]{}]/g, "").trim();
     if (!cleanQuery) return [];
-    
+
     const tokens = cleanQuery.split(/\s+/).filter(Boolean);
     const ftsPattern = tokens.map((t) => `"${t}"*`).join(" AND ");
-    
+
     try {
       const rows = await database.getAllAsync<Record<string, unknown>>(
         `SELECT a.* FROM aartis_fts f

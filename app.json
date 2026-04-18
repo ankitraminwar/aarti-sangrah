@@ -7,10 +7,9 @@
     "icon": "./assets/images/icon.png",
     "scheme": "aartisangrah",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ankitraminwar.aartisangrah",
+      "bundleIdentifier": "com.vikalp.aartisangrah",
       "infoPlist": {
         "CFBundleDisplayName": "Aarti Sangrah",
         "ITSAppUsesNonExemptEncryption": false
@@ -19,13 +18,10 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ff9933",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ankitraminwar.aartisangrah",
+      "package": "com.vikalp.aartisangrah",
       "versionCode": 1,
       "permissions": ["android.permission.INTERNET"]
     },
