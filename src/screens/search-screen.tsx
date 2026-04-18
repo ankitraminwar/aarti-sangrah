@@ -2,11 +2,11 @@ import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Linking, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AartiCard, EmptyState, LoadingView, SearchBar } from "@/src/components";
-import { Spacing } from "@/src/constants";
+import { REQUEST_FORM_URL, Spacing } from "@/src/constants";
 import { getAllAartis, searchAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
 import { useFavoritesStore } from "@/src/store";
@@ -53,6 +53,8 @@ export function SearchScreen() {
           icon="search-off"
           title={t("search.noResults")}
           message={t("search.noResultsMsg", { query: debouncedQuery })}
+          actionLabel={t("help.requestButton")}
+          onAction={() => Linking.openURL(REQUEST_FORM_URL)}
         />
       ) : (
         <FlashList

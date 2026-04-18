@@ -186,7 +186,7 @@ const translations = {
   },
   "help.q1": {
     hi: "ऑफलाइन होने पर ऐप काम करता है?",
-    mr: "ऑफलाइन असताना अॅप काम करतो का?",
+    mr: "ऑफलाइन असताना ॲप काम करतो का?",
     en: "Does the app work offline?",
   },
   "help.a1": {
@@ -236,13 +236,28 @@ const translations = {
   },
   "help.q6": {
     hi: "ऐप किन भाषाओं का समर्थन करता है?",
-    mr: "अॅप कोणत्या भाषांना सपोर्ट करतो?",
+    mr: "ॲप कोणत्या भाषांना सपोर्ट करतो?",
     en: "What languages does the app support?",
   },
   "help.a6": {
     hi: "ऐप हिन्दी, मराठी और अंग्रेज़ी का समर्थन करता है। आप सेटिंग्स में भाषा बदल सकते हैं।",
-    mr: "अॅप हिंदी, मराठी आणि इंग्रजी भाषांना सपोर्ट करतो. आपण सेटिंग्जमध्ये भाषा बदलू शकता.",
+    mr: "ॲप हिंदी, मराठी आणि इंग्रजी भाषांना सपोर्ट करतो. आपण सेटिंग्जमध्ये भाषा बदलू शकता.",
     en: "The app supports Hindi, Marathi, and English. You can change the language in Settings.",
+  },
+  "help.requestSection": {
+    hi: "नई सामग्री का अनुरोध करें",
+    mr: "नवीन सामग्रीची विनंती करा",
+    en: "Request New Content",
+  },
+  "help.requestButton": {
+    hi: "आरती / मंत्र का अनुरोध करें",
+    mr: "आरती / मंत्राची विनंती करा",
+    en: "Request Aarti / Mantra",
+  },
+  "search.requestMsg": {
+    hi: "यहाँ आरती का अनुरोध करें",
+    mr: "येथे आरतीची विनंती करा",
+    en: "Request an Aarti here",
   },
 } as const;
 

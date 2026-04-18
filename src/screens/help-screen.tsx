@@ -1,11 +1,11 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AppText } from "@/src/components";
-import { Radius, Spacing } from "@/src/constants";
+import { AppButton, AppText } from "@/src/components";
+import { REQUEST_FORM_URL, Radius, Spacing } from "@/src/constants";
 import { useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 
@@ -58,6 +58,20 @@ export function HelpScreen() {
             </AppText>
           </View>
         ))}
+
+        <View style={[styles.faqCard, { backgroundColor: colors.surfaceContainerLowest }]}>
+          <View style={styles.questionRow}>
+            <MaterialIcons name="add-circle-outline" size={20} color={colors.primary} />
+            <AppText variant="titleSm" style={{ flex: 1 }}>
+              {t("help.requestSection")}
+            </AppText>
+          </View>
+          <AppButton
+            title={t("help.requestButton")}
+            onPress={() => Linking.openURL(REQUEST_FORM_URL)}
+            variant="outline"
+          />
+        </View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
