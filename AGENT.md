@@ -30,7 +30,6 @@ Built with Expo SDK 54, React Native 0.81.5, TypeScript strict mode.
 aarti-sangrah/
 ├── app/                      # expo-router pages
 │   ├── _layout.tsx           # Root layout (fonts, DB init, providers)
-│   ├── modal.tsx
 │   ├── help.tsx              # → HelpScreen (FAQ page)
 │   ├── (tabs)/
 │   │   ├── _layout.tsx       # Tab navigator (Home, Search, Favorites, Settings)
@@ -62,7 +61,8 @@ aarti-sangrah/
 │   │   ├── search-bar.tsx    # Themed search input
 │   │   ├── section-header.tsx# Title + optional action
 │   │   ├── empty-state.tsx   # Empty state with icon
-│   │   ├── splash-overlay.tsx# Custom animated splash screen
+│   │   ├── data-sync-overlay.tsx # Animated first-launch overlay (reanimated)
+│   │   ├── splash-overlay.tsx# Custom animated splash screen (reanimated)
 │   │   └── loading-view.tsx  # Spinner + message
 │   └── screens/              # Screen components
 │       ├── home-screen.tsx
@@ -153,6 +153,8 @@ In `aarti-detail-screen.tsx`, verse blocks alternate backgrounds:
 | ---------- | ----------------------- | ---- | ----------------- |
 | displayLg  | NotoSerif_700Bold       | 36   | Screen titles     |
 | headlineLg | NotoSerif_700Bold       | 28   | Section headings  |
+| headlineMd | NotoSerif_700Bold       | 24   | Sub-headings      |
+| headlineSm | NotoSerif_700Bold       | 20   | Card headings     |
 | bodyLg     | NotoSerif_400Regular    | 16   | Aarti verse text  |
 | titleLg    | PlusJakartaSans_600Semi | 18   | Card titles       |
 | labelMd    | PlusJakartaSans_500Med  | 12   | Badges, meta text |
@@ -177,6 +179,7 @@ CDN (jsdelivr) → cdn-sync.ts → SQLite (expo-sqlite)
 - **Client state**: Zustand stores
   - `app-store`: themeMode, fontSize, language
   - `favorites-store`: favoriteIds Set (synced with SQLite)
+- **Favorites** are loaded once at app startup in `_layout.tsx`. Individual screens subscribe to the store — do NOT call `loadFavorites()` in screen `useEffect` hooks.
 
 ### 5.3 Screen Pattern
 
@@ -202,9 +205,11 @@ Every screen:
 Sharing uses **image format** (not plain text):
 
 - `react-native-view-shot` captures a styled card view
+- Share card content is rendered via a `renderShareCard(keyPrefix)` helper to avoid duplication
+- Two `ViewShot` refs: one for file-based sharing (`expo-sharing`), one for base64 clipboard copy
 - Card includes: app logo, app name, aarti title, author, first few verses, footer
 - Shared via `expo-sharing` as PNG
-- Hidden `ViewShot` view is positioned off-screen (`left: -9999`)
+- Hidden `ViewShot` views are positioned off-screen (`left: -9999`)
 
 ### Image Copy
 
@@ -281,7 +286,7 @@ All tab screens and the aarti detail screen use safe area handling:
 
 ---
 
-## 11. Critical Don'ts
+## 12. Critical Don'ts
 
 - **Don't use npm** — always `yarn`
 - **Don't hardcode colors** — use `colors.xxx` from `useTheme()`
@@ -290,3 +295,13 @@ All tab screens and the aarti detail screen use safe area handling:
 - **Don't skip SafeAreaView** on any screen
 - **Don't use `View` from react-native** as safe area substitute
 - **Don't commit without formatting** — `yarn format` first
+
+---
+
+## 13. Animation Best Practices
+
+- All animations MUST use `react-native-reanimated` (UI thread), never the old `Animated` from `react-native`
+- The splash overlay and data sync overlay use `useSharedValue`, `useAnimatedStyle`, `withTiming`, `withSpring`, `withDelay`, `withRepeat`, and `withSequence`
+- Use `scheduleOnRN` from `react-native-worklets` to call JS callbacks from worklets (e.g., `onFinished` after splash fade)
+- For entering/exiting layout animations, use reanimated's `FadeIn`, `FadeOut`, etc.
+- Only two font families are loaded: `NotoSerif` (400 Regular, 700 Bold) and `PlusJakartaSans` (400, 500, 600, 700). All Typography tokens must map to these loaded weights.

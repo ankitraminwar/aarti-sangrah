@@ -1,14 +1,20 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, Dimensions, StyleSheet, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect } from "react";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { Spacing, Typography } from "@/src/constants";
 import { useTheme } from "@/src/hooks";
 
 import { AppText } from "./app-text";
-
-const { width, height } = Dimensions.get("screen");
 
 interface SplashOverlayProps {
   onFinished: () => void;
@@ -16,33 +22,31 @@ interface SplashOverlayProps {
 
 export function SplashOverlay({ onFinished }: SplashOverlayProps) {
   const { colors } = useTheme();
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const scaleAnim = useRef(new Animated.Value(0.92)).current;
+  const { width, height } = useWindowDimensions();
+  const fade = useSharedValue(1);
+  const scale = useSharedValue(0.92);
 
   useEffect(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-      tension: 50,
-      friction: 9,
-    }).start();
+    scale.value = withSpring(1, { damping: 9, stiffness: 50 });
+    fade.value = withDelay(
+      3000,
+      withTiming(0, { duration: 400 }, (finished) => {
+        if (finished) scheduleOnRN(onFinished);
+      }),
+    );
+  }, [fade, scale, onFinished]);
 
-    const holdTimer = setTimeout(() => {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (finished) onFinished();
-      });
-    }, 3000);
+  const containerStyle = useAnimatedStyle(() => ({
+    opacity: fade.value,
+  }));
 
-    return () => clearTimeout(holdTimer);
-  }, [fadeAnim, scaleAnim, onFinished]);
+  const contentStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
     <Animated.View
-      style={[styles.container, { opacity: fadeAnim, backgroundColor: colors.surface }]}
+      style={[styles.container, { width, height, backgroundColor: colors.surface }, containerStyle]}
     >
       <LinearGradient
         colors={[colors.primaryContainer, colors.surfaceContainerLowest, colors.surface]}
@@ -67,7 +71,7 @@ export function SplashOverlay({ onFinished }: SplashOverlayProps) {
       {/* Spacer for Top */}
       <View style={{ height: "16%" }} />
 
-      <Animated.View style={[styles.content, { transform: [{ scale: scaleAnim }] }]}>
+      <Animated.View style={[styles.content, contentStyle]}>
         <AppText style={[{ ...Typography.displayLg, color: colors.primary, textAlign: "center" }]}>
           ॐ सर्वे भवन्तु सुखिनः
         </AppText>
@@ -100,8 +104,6 @@ export function SplashOverlay({ onFinished }: SplashOverlayProps) {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    width,
-    height,
     alignItems: "center",
     justifyContent: "space-between",
     zIndex: 9999,

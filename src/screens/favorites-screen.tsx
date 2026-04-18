@@ -1,7 +1,7 @@
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,11 +16,7 @@ export function FavoritesScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
-  const { favoriteIds, toggleFavorite, loadFavorites } = useFavoritesStore();
-
-  useEffect(() => {
-    loadFavorites();
-  }, [loadFavorites]);
+  const { favoriteIds, toggleFavorite } = useFavoritesStore();
 
   const { data: favorites = [], isLoading } = useQuery({
     queryKey: ["favorites", Array.from(favoriteIds).sort().join(",")],

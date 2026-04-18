@@ -142,7 +142,6 @@ export function SettingsScreen() {
                     {
                       backgroundColor:
                         fontSize === opt.value ? colors.primaryContainer : colors.surfaceContainer,
-                      borderWidth: fontSize === opt.value ? 0 : 0,
                     },
                   ]}
                 >

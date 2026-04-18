@@ -1,6 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 import { Spacing, Typography } from "@/src/constants";
 import { useTheme } from "@/src/hooks";
@@ -17,42 +24,33 @@ const ICONS: (keyof typeof MaterialIcons.glyphMap)[] = [
 export function DataSyncOverlay() {
   const { colors } = useTheme();
   const [iconIndex, setIconIndex] = useState(0);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const fade = useSharedValue(0);
+  const pulse = useSharedValue(1);
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    fade.value = withTiming(1, { duration: 500 });
+    pulse.value = withRepeat(
+      withSequence(withTiming(1.1, { duration: 750 }), withTiming(1, { duration: 750 })),
+      -1,
+    );
 
     const interval = setInterval(() => {
       setIconIndex((prev) => (prev + 1) % ICONS.length);
     }, 1500);
 
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 750,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 750,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-
     return () => clearInterval(interval);
-  }, [fadeAnim, pulseAnim]);
+  }, [fade, pulse]);
+
+  const containerAnim = useAnimatedStyle(() => ({
+    opacity: fade.value,
+  }));
+
+  const iconAnim = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+  }));
 
   return (
-    <Animated.View
-      style={[styles.container, { opacity: fadeAnim, backgroundColor: colors.surface }]}
-    >
+    <Animated.View style={[styles.container, { backgroundColor: colors.surface }, containerAnim]}>
       {/* Decorative gradient overlay */}
       <View
         style={[
@@ -63,7 +61,7 @@ export function DataSyncOverlay() {
       />
 
       <View style={styles.content}>
-        <Animated.View style={[styles.iconContainer, { transform: [{ scale: pulseAnim }] }]}>
+        <Animated.View style={[styles.iconContainer, iconAnim]}>
           <MaterialIcons name={ICONS[iconIndex]} size={56} color={colors.primary} />
         </Animated.View>
 

@@ -146,12 +146,12 @@ export const Typography = {
     lineHeight: 36,
   },
   headlineMd: {
-    fontFamily: "NotoSerif_600SemiBold",
+    fontFamily: "NotoSerif_700Bold",
     fontSize: 24,
     lineHeight: 32,
   },
   headlineSm: {
-    fontFamily: "NotoSerif_500Medium",
+    fontFamily: "NotoSerif_700Bold",
     fontSize: 20,
     lineHeight: 28,
   },

@@ -105,7 +105,7 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
     // Automatically rebuild the index to ensure consistency with existing records
     await database.execAsync("INSERT INTO aartis_fts(aartis_fts) VALUES ('rebuild')");
     ftsSupported = true;
-  } catch (err) {
+  } catch {
     console.warn("FTS5 not supported in this environment. Falling back to wildcard search.");
     ftsSupported = false;
   }

@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -17,7 +17,7 @@ export function HomeScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
-  const { favoriteIds, loadFavorites, toggleFavorite } = useFavoritesStore();
+  const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
 
@@ -60,10 +60,6 @@ export function HomeScreen() {
     },
     staleTime: Infinity,
   });
-
-  useEffect(() => {
-    loadFavorites();
-  }, [loadFavorites]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);

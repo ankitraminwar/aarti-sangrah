@@ -16,13 +16,9 @@ export function SearchScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
-  const { favoriteIds, toggleFavorite, loadFavorites } = useFavoritesStore();
+  const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-
-  useEffect(() => {
-    loadFavorites();
-  }, [loadFavorites]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300);

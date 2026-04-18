@@ -24,7 +24,7 @@ export function AartiDetailScreen() {
   const fontConfig = useFontSize();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { favoriteIds, toggleFavorite, loadFavorites } = useFavoritesStore();
+  const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const language = useAppStore((s) => s.language);
   const scrollRef = useRef<ScrollView>(null);
   const shareRef = useRef<ViewShot>(null);
@@ -33,10 +33,6 @@ export function AartiDetailScreen() {
   const [localDelta, setLocalDelta] = useState(0);
   const decreaseFont = useCallback(() => setLocalDelta((d) => Math.max(-6, d - 2)), []);
   const increaseFont = useCallback(() => setLocalDelta((d) => Math.min(8, d + 2)), []);
-
-  useEffect(() => {
-    loadFavorites();
-  }, [loadFavorites]);
 
   const { data: aarti, isLoading } = useQuery({
     queryKey: ["aarti", id],
@@ -88,6 +84,79 @@ export function AartiDetailScreen() {
   }
 
   const isFav = favoriteIds.has(aarti.id);
+
+  // Precompute which verses get primary-colored text.
+  // Chorus is always primary. Every other non-chorus verse gets primary.
+  // After a chorus, the next non-chorus verse is skipped (stays normal).
+  const versePrimaryFlags: boolean[] = [];
+  {
+    let counter = 0;
+    let skipNext = false;
+    for (const verse of verses) {
+      if (verse.type === "chorus") {
+        versePrimaryFlags.push(true);
+        skipNext = true;
+      } else if (skipNext) {
+        versePrimaryFlags.push(false);
+        skipNext = false;
+      } else {
+        counter++;
+        versePrimaryFlags.push(counter % 2 === 0);
+      }
+    }
+  }
+
+  const renderShareCard = (keyPrefix: string) => (
+    <View style={[styles.shareCard, { backgroundColor: colors.surface }]}>
+      <View style={styles.shareHeader}>
+        <Image source={require("@/assets/images/icon.png")} style={styles.shareLogo} />
+        <View>
+          <AppText variant="titleMd" style={{ color: colors.onSurface }}>
+            {t("detail.appName")}
+          </AppText>
+          <AppText variant="labelSm" style={{ color: colors.onSurfaceVariant }}>
+            {t("detail.tagline")}
+          </AppText>
+        </View>
+      </View>
+      <AppText variant="headlineMd" style={{ color: colors.onSurface }}>
+        {getLocalizedTitle(aarti, language)}
+      </AppText>
+      {aarti.author ? (
+        <AppText variant="bodySm" style={{ color: colors.onSurfaceVariant }}>
+          — {aarti.author}
+        </AppText>
+      ) : null}
+      <View style={[styles.shareDivider, { backgroundColor: colors.primaryContainer }]} />
+      {verses.length > 0 ? (
+        verses.slice(0, 4).map((verse, vIdx) => (
+          <View key={`${keyPrefix}-v-${vIdx}`} style={styles.shareVerse}>
+            {verse.lines.map((line, lIdx) => (
+              <AppText
+                key={`${keyPrefix}-l-${vIdx}-${lIdx}`}
+                variant="bodyMd"
+                style={{
+                  color: verse.type === "chorus" ? colors.primary : colors.onSurface,
+                }}
+              >
+                {line}
+              </AppText>
+            ))}
+          </View>
+        ))
+      ) : (
+        <AppText variant="bodyMd" style={{ color: colors.onSurface }} numberOfLines={20}>
+          {aarti.content}
+        </AppText>
+      )}
+      <AppText
+        variant="labelSm"
+        style={{ color: colors.outline, textAlign: "center", marginTop: Spacing.md }}
+      >
+        {t("detail.sharedFrom")}
+      </AppText>
+    </View>
+  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
@@ -200,7 +269,7 @@ export function AartiDetailScreen() {
                       style={{
                         fontSize: fontConfig.body + localDelta,
                         lineHeight: (fontConfig.body + localDelta) * fontConfig.lineHeight,
-                        ...(verse.type === "chorus" ? { color: colors.primary } : {}),
+                        ...(versePrimaryFlags[vIdx] ? { color: colors.primary } : {}),
                       }}
                     >
                       {line}
@@ -228,106 +297,10 @@ export function AartiDetailScreen() {
       {/* Hidden shareable image view */}
       <View style={styles.shareContainer}>
         <ViewShot ref={shareRef} options={{ format: "png", quality: 1 }}>
-          <View style={[styles.shareCard, { backgroundColor: colors.surface }]}>
-            <View style={styles.shareHeader}>
-              <Image source={require("@/assets/images/icon.png")} style={styles.shareLogo} />
-              <View>
-                <AppText variant="titleMd" style={{ color: colors.onSurface }}>
-                  {t("detail.appName")}
-                </AppText>
-                <AppText variant="labelSm" style={{ color: colors.onSurfaceVariant }}>
-                  {t("detail.tagline")}
-                </AppText>
-              </View>
-            </View>
-            <AppText variant="headlineMd" style={{ color: colors.onSurface }}>
-              {getLocalizedTitle(aarti, language)}
-            </AppText>
-            {aarti.author ? (
-              <AppText variant="bodySm" style={{ color: colors.onSurfaceVariant }}>
-                — {aarti.author}
-              </AppText>
-            ) : null}
-            <View style={[styles.shareDivider, { backgroundColor: colors.primaryContainer }]} />
-            {verses.length > 0 ? (
-              verses.slice(0, 4).map((verse, vIdx) => (
-                <View key={`share-v-${vIdx}`} style={styles.shareVerse}>
-                  {verse.lines.map((line, lIdx) => (
-                    <AppText
-                      key={`share-l-${vIdx}-${lIdx}`}
-                      variant="bodyMd"
-                      style={{
-                        color: verse.type === "chorus" ? colors.primary : colors.onSurface,
-                      }}
-                    >
-                      {line}
-                    </AppText>
-                  ))}
-                </View>
-              ))
-            ) : (
-              <AppText variant="bodyMd" style={{ color: colors.onSurface }} numberOfLines={20}>
-                {aarti.content}
-              </AppText>
-            )}
-            <AppText
-              variant="labelSm"
-              style={{ color: colors.outline, textAlign: "center", marginTop: Spacing.md }}
-            >
-              {t("detail.sharedFrom")}
-            </AppText>
-          </View>
+          {renderShareCard("share")}
         </ViewShot>
         <ViewShot ref={copyShareRef} options={{ format: "png", quality: 1, result: "base64" }}>
-          <View style={[styles.shareCard, { backgroundColor: colors.surface }]}>
-            <View style={styles.shareHeader}>
-              <Image source={require("@/assets/images/icon.png")} style={styles.shareLogo} />
-              <View>
-                <AppText variant="titleMd" style={{ color: colors.onSurface }}>
-                  {t("detail.appName")}
-                </AppText>
-                <AppText variant="labelSm" style={{ color: colors.onSurfaceVariant }}>
-                  {t("detail.tagline")}
-                </AppText>
-              </View>
-            </View>
-            <AppText variant="headlineMd" style={{ color: colors.onSurface }}>
-              {getLocalizedTitle(aarti, language)}
-            </AppText>
-            {aarti.author ? (
-              <AppText variant="bodySm" style={{ color: colors.onSurfaceVariant }}>
-                — {aarti.author}
-              </AppText>
-            ) : null}
-            <View style={[styles.shareDivider, { backgroundColor: colors.primaryContainer }]} />
-            {verses.length > 0 ? (
-              verses.slice(0, 4).map((verse, vIdx) => (
-                <View key={`copy-v-${vIdx}`} style={styles.shareVerse}>
-                  {verse.lines.map((line, lIdx) => (
-                    <AppText
-                      key={`copy-l-${vIdx}-${lIdx}`}
-                      variant="bodyMd"
-                      style={{
-                        color: verse.type === "chorus" ? colors.primary : colors.onSurface,
-                      }}
-                    >
-                      {line}
-                    </AppText>
-                  ))}
-                </View>
-              ))
-            ) : (
-              <AppText variant="bodyMd" style={{ color: colors.onSurface }} numberOfLines={20}>
-                {aarti.content}
-              </AppText>
-            )}
-            <AppText
-              variant="labelSm"
-              style={{ color: colors.outline, textAlign: "center", marginTop: Spacing.md }}
-            >
-              {t("detail.sharedFrom")}
-            </AppText>
-          </View>
+          {renderShareCard("copy")}
         </ViewShot>
       </View>
     </SafeAreaView>

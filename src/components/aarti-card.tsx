@@ -39,7 +39,7 @@ export function AartiCard({
       >
         <LinearGradient
           colors={[colors.gradientStart, isDark ? colors.surfaceContainerLow : colors.gradientEnd]}
-          start={{ x: 0, y: 0 }}
+          start={{ x: 0.4, y: 0.3 }}
           end={{ x: 1, y: 1 }}
           style={styles.featuredGradient}
         >

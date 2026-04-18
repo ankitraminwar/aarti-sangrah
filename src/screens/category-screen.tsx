@@ -1,7 +1,7 @@
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 
 import { AartiCard, AppText, EmptyState, LoadingView } from "@/src/components";
@@ -16,11 +16,7 @@ export function CategoryScreen() {
   const t = useT();
   const { name } = useLocalSearchParams<{ name: string }>();
   const router = useRouter();
-  const { favoriteIds, toggleFavorite, loadFavorites } = useFavoritesStore();
-
-  useEffect(() => {
-    loadFavorites();
-  }, [loadFavorites]);
+  const { favoriteIds, toggleFavorite } = useFavoritesStore();
 
   const { data: aartis = [], isLoading } = useQuery({
     queryKey: ["category", name],
