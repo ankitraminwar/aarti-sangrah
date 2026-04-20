@@ -67,7 +67,12 @@ export function HomeScreen() {
     setRefreshing(true);
     try {
       await fetchAndSyncAartis();
-      await queryClient.refetchQueries();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
+        queryClient.invalidateQueries({ queryKey: ["categories"] }),
+        queryClient.invalidateQueries({ queryKey: ["featured"] }),
+        queryClient.invalidateQueries({ queryKey: ["recents"] }),
+      ]);
     } catch {
       // silent - offline mode
     } finally {

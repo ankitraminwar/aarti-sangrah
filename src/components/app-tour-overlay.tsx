@@ -105,7 +105,7 @@ export function AppTourOverlay({ onFinished }: AppTourOverlayProps) {
         <Animated.View
           style={[
             styles.iconContainer,
-            { backgroundColor: colors.primaryContainer },
+            { backgroundColor: colors.primaryContainer, shadowColor: colors.cardShadow },
             iconAnimStyle,
           ]}
         >
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: Spacing.lg,
     elevation: 4,
-    shadowColor: "#000",
+    // shadowColor applied dynamically from theme.cardShadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
