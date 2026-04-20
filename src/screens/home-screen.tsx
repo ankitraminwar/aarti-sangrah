@@ -42,17 +42,21 @@ export function HomeScreen() {
     queryFn: getAllAartis,
   });
 
-  // Initial sync — needsSync() returns true on first install (no lastSync in DB)
+  // Initial sync — runs when stale (>24h) or when the local DB is empty
+  // (e.g. first install, partial DB reset, or corruption).
   useQuery({
     queryKey: ["initialSync"],
     queryFn: async () => {
       const shouldSync = await needsSync();
-      if (shouldSync) {
+      const isEmpty = allAartis.length === 0;
+      if (shouldSync || isEmpty) {
         await fetchAndSyncAartis();
-        await queryClient.invalidateQueries({ queryKey: ["allAartis"] });
-        await queryClient.invalidateQueries({ queryKey: ["categories"] });
-        await queryClient.invalidateQueries({ queryKey: ["featured"] });
-        await queryClient.invalidateQueries({ queryKey: ["recents"] });
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
+          queryClient.invalidateQueries({ queryKey: ["categories"] }),
+          queryClient.invalidateQueries({ queryKey: ["featured"] }),
+          queryClient.invalidateQueries({ queryKey: ["recents"] }),
+        ]);
       }
       return true;
     },

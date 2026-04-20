@@ -120,7 +120,12 @@ export default function RootLayout() {
           const shouldSync = await needsSync();
           if (shouldSync) {
             await fetchAndSyncAartis();
-            queryClient.invalidateQueries();
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
+              queryClient.invalidateQueries({ queryKey: ["categories"] }),
+              queryClient.invalidateQueries({ queryKey: ["featured"] }),
+              queryClient.invalidateQueries({ queryKey: ["recents"] }),
+            ]);
           }
         } catch {
           // silent - offline mode

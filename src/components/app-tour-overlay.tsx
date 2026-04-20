@@ -76,10 +76,13 @@ export function AppTourOverlay({ onFinished }: AppTourOverlayProps) {
 
   const goToIndex = useCallback(
     (index: number) => {
-      flatListRef.current?.scrollToIndex({ index, animated: true });
+      // scrollToOffset is safe and deterministic for fixed-width slides;
+      // scrollToIndex can fire onScrollToIndexFailed before items are measured.
+      const safeIndex = Math.max(0, Math.min(index, SLIDE_COUNT - 1));
+      flatListRef.current?.scrollToOffset({ offset: safeIndex * width, animated: true });
       iconScale.value = withSpring(1, { damping: 8, stiffness: 120 });
     },
-    [iconScale],
+    [iconScale, width],
   );
 
   const handleNext = useCallback(() => {

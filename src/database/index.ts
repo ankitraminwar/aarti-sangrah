@@ -10,10 +10,16 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
   if (!initPromise) {
     initPromise = (async () => {
-      const database = await SQLite.openDatabaseAsync(DB_NAME);
-      await initSchema(database);
-      db = database;
-      return database;
+      try {
+        const database = await SQLite.openDatabaseAsync(DB_NAME);
+        await initSchema(database);
+        db = database;
+        return database;
+      } catch (error) {
+        db = null;
+        initPromise = null;
+        throw error;
+      }
     })();
   }
   return initPromise;

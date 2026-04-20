@@ -58,17 +58,15 @@ export function SettingsScreen() {
   }, []);
 
   const handleSync = useCallback(async () => {
-    if (!navigator.onLine) {
-      setModalTitle(t("settings.syncNoInternet"));
-      setModalMessage(t("settings.syncNoInternetMsg"));
-      setModalVisible(true);
-      return;
-    }
-
     setSyncing(true);
     try {
       await fetchAndSyncAartis();
-      await queryClient.invalidateQueries();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
+        queryClient.invalidateQueries({ queryKey: ["categories"] }),
+        queryClient.invalidateQueries({ queryKey: ["featured"] }),
+        queryClient.invalidateQueries({ queryKey: ["recents"] }),
+      ]);
       const ts = await getLastSyncTime();
       if (ts) setLastSync(new Date(ts).toLocaleString());
       setModalTitle(t("settings.syncSuccess"));
@@ -258,6 +256,24 @@ export function SettingsScreen() {
                 </AppText>
               </View>
               <MaterialIcons name="help-outline" size={24} color={colors.primary} />
+            </View>
+          </Pressable>
+        </View>
+
+        {/* Privacy Policy */}
+        <View style={styles.section}>
+          <Pressable
+            onPress={() => router.push("/privacy")}
+            style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
+          >
+            <View style={styles.rowBetween}>
+              <View style={{ flex: 1, gap: Spacing.xs }}>
+                <AppText variant="titleSm">{t("settings.privacy")}</AppText>
+                <AppText variant="bodySm" color={colors.onSurfaceVariant}>
+                  {t("settings.privacyDesc")}
+                </AppText>
+              </View>
+              <MaterialIcons name="shield" size={24} color={colors.primary} />
             </View>
           </Pressable>
         </View>
