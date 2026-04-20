@@ -58,6 +58,13 @@ export function SettingsScreen() {
   }, []);
 
   const handleSync = useCallback(async () => {
+    if (!navigator.onLine) {
+      setModalTitle(t("settings.syncNoInternet"));
+      setModalMessage(t("settings.syncNoInternetMsg"));
+      setModalVisible(true);
+      return;
+    }
+
     setSyncing(true);
     try {
       await fetchAndSyncAartis();

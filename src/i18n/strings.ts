@@ -171,11 +171,21 @@ const translations = {
     mr: "आरत्या क्लाउडवरून रिफ्रेश झाल्या आहेत.",
     en: "Aartis have been refreshed from the cloud.",
   },
-  "settings.syncOffline": { hi: "ऑफलाइन", mr: "ऑफलाइन", en: "Offline" },
+  "settings.syncNoInternet": {
+    hi: "इंटरनेट नहीं है",
+    mr: "इंटरनेट नाही",
+    en: "No Internet Connection",
+  },
+  "settings.syncNoInternetMsg": {
+    hi: "डेटा सिंक करने के लिए इंटरनेट कनेक्शन आवश्यक है। कृपया अपना नेटवर्क जाँचें और दोबारा कोशिश करें।",
+    mr: "डेटा सिंक करण्यासाठी इंटरनेट कनेक्शन आवश्यक आहे. कृपया आपले नेटवर्क तपासा आणि पुन्हा प्रयत्न करा.",
+    en: "An internet connection is required to sync data. Please check your network and try again.",
+  },
+  "settings.syncOffline": { hi: "सिंक विफल", mr: "सिंक अयशस्वी", en: "Sync Failed" },
   "settings.syncOfflineMsg": {
-    hi: "सर्वर से संपर्क नहीं हो सका। कैश्ड आरतियाँ उपलब्ध हैं।",
-    mr: "सर्व्हरशी संपर्क होऊ शकला नाही. कॅश्ड आरत्या उपलब्ध आहेत.",
-    en: "Could not reach the server. Your cached aartis are still available.",
+    hi: "सर्वर से संपर्क नहीं हो सका। आपकी सहेजी हुई आरतियाँ अभी भी उपलब्ध हैं।",
+    mr: "सर्व्हरशी संपर्क होऊ शकला नाही. आपल्या जतन केलेल्या आरत्या अजूनही उपलब्ध आहेत.",
+    en: "Could not reach the server. Your saved aartis are still available.",
   },
 
   // ── Category Screen ───────────────────────────────────────────────

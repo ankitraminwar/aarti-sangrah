@@ -1,0 +1,145 @@
+name: Deploy
+
+on:
+  # Auto OTA update to preview when code lands on main
+  push:
+    branches: [master]
+
+  # Manual build with environment + platform selector
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: preview
+        type: choice
+        options:
+          - development
+          - preview
+          - production
+      platform:
+        description: "Target platform"
+        required: true
+        default: android
+        type: choice
+        options:
+          - android
+          - all
+
+# One deploy at a time per branch
+concurrency:
+  group: deploy-${{ github.ref }}-${{ inputs.environment || 'preview' }}
+  cancel-in-progress: false
+
+jobs:
+  # ── Re-run all quality checks before deploying ─────────────────────
+  quality:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+      - name: Format check
+        run: yarn format:check
+
+      - name: Expo Doctor
+        run: npx expo-doctor
+        env:
+          EXPO_NO_TELEMETRY: 1
+
+  # ── OTA update — runs automatically on every merge to main ─────────
+  ota-update:
+    name: OTA Update → preview
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Publish OTA update to preview channel
+        run: |
+          eas update \
+            --channel preview \
+            --message "Auto-deploy from ${{ github.sha }} — ${{ github.event.head_commit.message }}" \
+            --non-interactive
+
+  # ── Full EAS Build — triggered manually from GitHub Actions UI ─────
+  eas-build:
+    name: EAS Build → ${{ inputs.environment }}
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    # Ties into GitHub Environments so you can add required reviewers
+    # for the production environment in: Settings → Environments
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: EAS Build
+        run: |
+          eas build \
+            --profile ${{ inputs.environment }} \
+            --platform ${{ inputs.platform }} \
+            --non-interactive \
+            --wait
+
+      # After a production build succeeds, also push an OTA update
+      # so existing users get JS changes immediately without reinstalling
+      - name: Publish OTA update (production channel)
+        if: inputs.environment == 'production'
+        run: |
+          eas update \
+            --channel production \
+            --message "Production release ${{ github.sha }}" \
+            --non-interactive
