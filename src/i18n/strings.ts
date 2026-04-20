@@ -1,6 +1,61 @@
 import type { AppLanguage } from "@/src/types";
 
 const translations = {
+  // ── App Tour ────────────────────────────────────────────────────────
+  "tour.next": { hi: "अगला", mr: "पुढील", en: "Next" },
+  "tour.skip": { hi: "छोड़ें", mr: "वगळा", en: "Skip" },
+  "tour.done": { hi: "शुरू करें", mr: "सुरू करा", en: "Get Started" },
+  "tour.slide1.title": {
+    hi: "आरती संग्रह में स्वागत है",
+    mr: "आरती संग्रहात स्वागत आहे",
+    en: "Welcome to Aarti Sangrah",
+  },
+  "tour.slide1.desc": {
+    hi: "भक्ति से बनाया गया पवित्र आरतियों का सबसे बड़ा संग्रह। देवताओं और भाषाओं के अनुसार वर्गीकृत।",
+    mr: "भक्तीने बनवलेला पवित्र आरत्यांचा सर्वात मोठा संग्रह. देवता आणि भाषांनुसार वर्गीकृत.",
+    en: "The most comprehensive collection of sacred aartis, made with devotion. Categorised by deities and languages.",
+  },
+  "tour.slide2.title": {
+    hi: "श्रेणियाँ और खोजें",
+    mr: "श्रेण्या आणि शोधा",
+    en: "Browse & Search",
+  },
+  "tour.slide2.desc": {
+    hi: "होम स्क्रीन पर देवी-देवताओं की श्रेणियाँ देखें और खोज से तुरंत कोई भी आरती ढूँढें।",
+    mr: "होम स्क्रीनवर देवी-देवतांच्या श्रेण्या पहा आणि शोधाने लगेच कोणतीही आरती शोधा.",
+    en: "Explore deity categories on Home and instantly find any aarti with powerful search.",
+  },
+  "tour.slide3.title": {
+    hi: "पसंदीदा संग्रह",
+    mr: "आवडते संग्रह",
+    en: "Your Favorites",
+  },
+  "tour.slide3.desc": {
+    hi: "हृदय आइकन टैप करके पसंदीदा आरतियाँ सहेजें। पसंदीदा टैब से कभी भी जल्दी पहुँचें।",
+    mr: "हृदय चिन्ह टॅप करून आवडत्या आरत्या जतन करा. आवडते टॅबवरून केव्हाही त्वरित प्रवेश करा.",
+    en: "Save aartis by tapping the heart icon. Access them anytime from the Favorites tab.",
+  },
+  "tour.slide4.title": {
+    hi: "अपनी पसंद के अनुसार सेटिंग्स",
+    mr: "आपल्या आवडीनुसार सेटिंग्ज",
+    en: "Personalize Settings",
+  },
+  "tour.slide4.desc": {
+    hi: "थीम, अक्षर आकार और भाषा बदलें। सेटिंग्स से डेटा रीफ्रेश करें।",
+    mr: "थीम, अक्षर आकार आणि भाषा बदला. सेटिंग्जमधून डेटा रिफ्रेश करा.",
+    en: "Change theme, text size, and language. Refresh data anytime from Settings.",
+  },
+  "tour.slide5.title": {
+    hi: "ऑफ़लाइन पढ़ें, कहीं भी",
+    mr: "ऑफलाइन वाचा, कुठेही",
+    en: "Read Offline, Anywhere",
+  },
+  "tour.slide5.desc": {
+    hi: "सभी आरतियाँ आपके फ़ोन में सहेजी जाती हैं। बिना इंटरनेट के भी पढ़ें।",
+    mr: "सर्व आरत्या आपल्या फोनमध्ये जतन केल्या जातात. इंटरनेटशिवायही वाचा.",
+    en: "All aartis are saved on your phone. Read even without internet.",
+  },
+
   // ── Tabs ──────────────────────────────────────────────────────────
   "tab.home": { hi: "होम", mr: "होम", en: "Home" },
   "tab.search": { hi: "खोजें", mr: "शोधा", en: "Search" },
@@ -19,7 +74,7 @@ const translations = {
     mr: "आपला पवित्र संग्रह तयार होत आहे...",
     en: "Preparing your sacred collection...",
   },
-  "home.todaysAarti": { hi: "आज की आरती", mr: "आजची आरती", en: "Today's Aarti" },
+  "home.todaysAarti": { hi: "आज की प्रार्थना", mr: "आजची प्रार्थना", en: "Today's Prayer" },
   "home.collections": { hi: "दैवी संग्रह", mr: "दैवी संग्रह", en: "Divine Collections" },
   "home.popular": { hi: "लोकप्रिय आरतियाँ", mr: "लोकप्रिय आरत्या", en: "Popular Aartis" },
   "home.seeAll": { hi: "सभी देखें", mr: "सर्व पहा", en: "See All" },

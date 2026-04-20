@@ -9,3 +9,4 @@ export { LoadingView } from "./loading-view";
 export { SearchBar } from "./search-bar";
 export { SectionHeader } from "./section-header";
 export { SplashOverlay } from "./splash-overlay";
+export { AppTourOverlay } from "./app-tour-overlay";

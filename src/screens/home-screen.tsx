@@ -1,9 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AartiCard, AppText, CategoryCard, DataSyncOverlay, SectionHeader } from "@/src/components";
@@ -20,41 +20,39 @@ export function HomeScreen() {
   const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
 
-  const { data: categories = [], refetch: refetchCategories } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
   });
 
-  const { data: featured = [], refetch: refetchFeatured } = useQuery({
+  const { data: featured = [] } = useQuery({
     queryKey: ["featured"],
     queryFn: getFeaturedAartis,
   });
 
-  const { data: recents = [], refetch: refetchRecents } = useQuery({
+  const { data: recents = [] } = useQuery({
     queryKey: ["recents"],
     queryFn: () => getRecentAartis(5),
   });
 
-  const {
-    data: allAartis = [],
-    isLoading,
-    refetch: refetchAll,
-  } = useQuery({
+  const { data: allAartis = [], isLoading } = useQuery({
     queryKey: ["allAartis"],
     queryFn: getAllAartis,
   });
 
-  // Initial sync
+  // Initial sync — needsSync() returns true on first install (no lastSync in DB)
   useQuery({
     queryKey: ["initialSync"],
     queryFn: async () => {
       const shouldSync = await needsSync();
-      if (shouldSync || allAartis.length === 0) {
+      if (shouldSync) {
         await fetchAndSyncAartis();
-        await refetchAll();
-        await refetchCategories();
-        await refetchFeatured();
+        await queryClient.invalidateQueries({ queryKey: ["allAartis"] });
+        await queryClient.invalidateQueries({ queryKey: ["categories"] });
+        await queryClient.invalidateQueries({ queryKey: ["featured"] });
+        await queryClient.invalidateQueries({ queryKey: ["recents"] });
       }
       return true;
     },
@@ -65,13 +63,13 @@ export function HomeScreen() {
     setRefreshing(true);
     try {
       await fetchAndSyncAartis();
-      await Promise.all([refetchAll(), refetchCategories(), refetchFeatured(), refetchRecents()]);
+      await queryClient.refetchQueries();
     } catch {
       // silent - offline mode
     } finally {
       setRefreshing(false);
     }
-  }, [refetchAll, refetchCategories, refetchFeatured, refetchRecents]);
+  }, [queryClient]);
 
   const todaysAarti =
     featured.length > 0 ? featured[Math.floor(Date.now() / 86400000) % featured.length] : null;
@@ -111,12 +109,9 @@ export function HomeScreen() {
             </AppText>
           </View>
           <View style={styles.headerActions}>
-            <MaterialIcons
-              name="search"
-              size={28}
-              color={colors.onSurface}
-              onPress={() => router.push("/search")}
-            />
+            <Pressable onPress={() => router.push("/search")} hitSlop={12}>
+              <MaterialIcons name="search" size={28} color={colors.onSurface} />
+            </Pressable>
           </View>
         </View>
       </LinearGradient>

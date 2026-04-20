@@ -16,11 +16,13 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
+import { AppState } from "react-native";
 import "react-native-reanimated";
 
-import { SplashOverlay } from "@/src/components";
+import { AppTourOverlay, SplashOverlay } from "@/src/components";
 import { initDatabase } from "@/src/database";
 import { useTheme } from "@/src/hooks";
+import { fetchAndSyncAartis, needsSync } from "@/src/services";
 import { useAppStore, useFavoritesStore } from "@/src/store";
 
 SplashScreen.preventAutoHideAsync();
@@ -79,6 +81,7 @@ function RootNavigator() {
 export default function RootLayout() {
   const [dbReady, setDbReady] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
+  const { hasSeenTour, setHasSeenTour } = useAppStore();
 
   const [serifLoaded] = useNotoSerif({
     NotoSerif_400Regular,
@@ -109,6 +112,24 @@ export default function RootLayout() {
     }
   }, [serifLoaded, jakartaLoaded]);
 
+  // Auto-sync when app returns to foreground after 24h staleness
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", async (state) => {
+      if (state === "active") {
+        try {
+          const shouldSync = await needsSync();
+          if (shouldSync) {
+            await fetchAndSyncAartis();
+            queryClient.invalidateQueries();
+          }
+        } catch {
+          // silent - offline mode
+        }
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
   const handleSplashFinished = useCallback(() => {
     setSplashDone(true);
   }, []);
@@ -121,6 +142,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <RootNavigator />
+      {dbReady && !hasSeenTour && <AppTourOverlay onFinished={() => setHasSeenTour(true)} />}
       {(!splashDone || !dbReady) && <SplashOverlay onFinished={handleSplashFinished} />}
     </QueryClientProvider>
   );

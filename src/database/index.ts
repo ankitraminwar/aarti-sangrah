@@ -3,13 +3,20 @@ import type { Aarti, RecentAarti } from "@/src/types";
 import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
+let initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let ftsSupported = false;
 
 export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
-  db = await SQLite.openDatabaseAsync(DB_NAME);
-  await initSchema(db);
-  return db;
+  if (!initPromise) {
+    initPromise = (async () => {
+      const database = await SQLite.openDatabaseAsync(DB_NAME);
+      await initSchema(database);
+      db = database;
+      return database;
+    })();
+  }
+  return initPromise;
 }
 
 export async function initDatabase(): Promise<void> {
@@ -102,8 +109,17 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
       END;
     `);
 
-    // Automatically rebuild the index to ensure consistency with existing records
-    await database.execAsync("INSERT INTO aartis_fts(aartis_fts) VALUES ('rebuild')");
+    // Only rebuild the FTS index once (first install or after FTS schema upgrade).
+    // Subsequent starts rely on the INSERT/UPDATE/DELETE triggers to stay in sync.
+    const ftsInited = await database.getFirstAsync<{ value: string }>(
+      "SELECT value FROM sync_meta WHERE key = 'fts_schema_v1'",
+    );
+    if (!ftsInited) {
+      await database.execAsync("INSERT INTO aartis_fts(aartis_fts) VALUES ('rebuild')");
+      await database.runAsync(
+        "INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('fts_schema_v1', 'true')",
+      );
+    }
     ftsSupported = true;
   } catch {
     console.warn("FTS5 not supported in this environment. Falling back to wildcard search.");

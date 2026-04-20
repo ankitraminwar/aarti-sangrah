@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -29,10 +29,13 @@ export function AartiDetailScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const shareRef = useRef<ViewShot>(null);
   const copyShareRef = useRef<ViewShot>(null);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [copied, setCopied] = useState(false);
   const [localDelta, setLocalDelta] = useState(0);
   const decreaseFont = useCallback(() => setLocalDelta((d) => Math.max(-6, d - 2)), []);
   const increaseFont = useCallback(() => setLocalDelta((d) => Math.min(8, d + 2)), []);
+
+  const queryClient = useQueryClient();
 
   const { data: aarti, isLoading } = useQuery({
     queryKey: ["aarti", id],
@@ -40,12 +43,21 @@ export function AartiDetailScreen() {
     enabled: !!id,
   });
 
-  // Track recent on mount
+  // Track recent on mount and invalidate the recents query so Home reflects it
   useEffect(() => {
     if (id) {
-      upsertRecent(id, 0);
+      upsertRecent(id, 0).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["recents"] });
+      });
     }
-  }, [id]);
+  }, [id, queryClient]);
+
+  // Cleanup copied-feedback timer on unmount
+  useEffect(() => {
+    return () => {
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+    };
+  }, []);
 
   const handleShare = useCallback(async () => {
     if (!aarti || !shareRef.current?.capture) return;
@@ -65,8 +77,9 @@ export function AartiDetailScreen() {
     try {
       const base64 = await copyShareRef.current.capture();
       await Clipboard.setImageAsync(base64);
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // fallback silently
     }

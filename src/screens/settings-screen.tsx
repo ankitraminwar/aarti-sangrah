@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -40,6 +41,7 @@ export function SettingsScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { themeMode, setThemeMode, fontSize, setFontSize, language, setLanguage } = useAppStore();
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
@@ -59,6 +61,7 @@ export function SettingsScreen() {
     setSyncing(true);
     try {
       await fetchAndSyncAartis();
+      await queryClient.invalidateQueries();
       const ts = await getLastSyncTime();
       if (ts) setLastSync(new Date(ts).toLocaleString());
       setModalTitle(t("settings.syncSuccess"));
@@ -71,7 +74,7 @@ export function SettingsScreen() {
     } finally {
       setSyncing(false);
     }
-  }, [t]);
+  }, [t, queryClient]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
