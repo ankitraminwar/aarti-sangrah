@@ -1,11 +1,7 @@
 name: Deploy
 
 on:
-  # Auto OTA update to preview when code lands on main
-  push:
-    branches: [master]
-
-  # Manual build with environment + platform selector
+  # Manual build/deploy with environment + platform selector
   workflow_dispatch:
     inputs:
       environment:
