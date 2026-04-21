@@ -2,11 +2,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppModal, AppText } from "@/src/components";
-import { APP_VERSION, Radius, Spacing } from "@/src/constants";
+import { APP_VERSION, Radius, Spacing, THINKERCART_URL } from "@/src/constants";
 import { useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import { fetchAndSyncAartis, getLastSyncTime } from "@/src/services";
@@ -300,6 +300,16 @@ export function SettingsScreen() {
           <AppText variant="bodySm" color={colors.outline} style={styles.footer}>
             {t("settings.footer")}
           </AppText>
+          <View style={styles.footerRow}>
+            <AppText variant="bodySm" color={colors.outline}>
+              {"Developed and maintained by "}
+            </AppText>
+            <Pressable onPress={() => Linking.openURL(THINKERCART_URL)} hitSlop={8}>
+              <AppText variant="bodySm" color={colors.primary}>
+                ThinkerCart.com
+              </AppText>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
       <AppModal
@@ -375,8 +385,16 @@ const styles = StyleSheet.create({
   },
   aboutRow: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: Spacing.xs,
+  },
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: Spacing.sm,
   },
   footer: {
     textAlign: "center",
