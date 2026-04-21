@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -40,6 +41,7 @@ export function SettingsScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { themeMode, setThemeMode, fontSize, setFontSize, language, setLanguage } = useAppStore();
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
@@ -59,6 +61,12 @@ export function SettingsScreen() {
     setSyncing(true);
     try {
       await fetchAndSyncAartis();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
+        queryClient.invalidateQueries({ queryKey: ["categories"] }),
+        queryClient.invalidateQueries({ queryKey: ["featured"] }),
+        queryClient.invalidateQueries({ queryKey: ["recents"] }),
+      ]);
       const ts = await getLastSyncTime();
       if (ts) setLastSync(new Date(ts).toLocaleString());
       setModalTitle(t("settings.syncSuccess"));
@@ -71,7 +79,7 @@ export function SettingsScreen() {
     } finally {
       setSyncing(false);
     }
-  }, [t]);
+  }, [t, queryClient]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
@@ -248,6 +256,24 @@ export function SettingsScreen() {
                 </AppText>
               </View>
               <MaterialIcons name="help-outline" size={24} color={colors.primary} />
+            </View>
+          </Pressable>
+        </View>
+
+        {/* Privacy Policy */}
+        <View style={styles.section}>
+          <Pressable
+            onPress={() => router.push("/privacy")}
+            style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
+          >
+            <View style={styles.rowBetween}>
+              <View style={{ flex: 1, gap: Spacing.xs }}>
+                <AppText variant="titleSm">{t("settings.privacy")}</AppText>
+                <AppText variant="bodySm" color={colors.onSurfaceVariant}>
+                  {t("settings.privacyDesc")}
+                </AppText>
+              </View>
+              <MaterialIcons name="shield" size={24} color={colors.primary} />
             </View>
           </Pressable>
         </View>

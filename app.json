@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vikalp.aartisangrah",
+      "bundleIdentifier": "com.thinkercart.aartisangrah",
       "infoPlist": {
         "CFBundleDisplayName": "Aarti Sangrah",
         "ITSAppUsesNonExemptEncryption": false
@@ -21,7 +21,7 @@
         "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.vikalp.aartisangrah",
+      "package": "com.thinkercart.aartisangrah",
       "versionCode": 1,
       "permissions": ["android.permission.INTERNET"]
     },
@@ -47,7 +47,8 @@
         }
       ],
       "expo-sqlite",
-      "expo-localization"
+      "expo-localization",
+      "expo-updates"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -55,14 +56,16 @@
     },
     "extra": {
       "eas": {
-        "projectId": ""
-      }
+        "projectId": "d84ae34c-6cbe-45ea-92cb-dc4d5b543d71"
+      },
+      "router": {}
     },
     "updates": {
-      "url": ""
+      "url": "https://u.expo.dev/d84ae34c-6cbe-45ea-92cb-dc4d5b543d71"
     },
     "runtimeVersion": {
       "policy": "appVersion"
-    }
+    },
+    "owner": "thinkercart"
   }
 }

@@ -1,4 +1,4 @@
-import { CDN_URL } from "@/src/constants";
+import { CDN_URL, STALE_TIME_MS } from "@/src/constants";
 import { getSyncMeta, setSyncMeta, upsertAartis } from "@/src/database";
 import type { Aarti, CdnAarti, CdnResponse } from "@/src/types";
 
@@ -45,7 +45,13 @@ export async function fetchAndSyncAartis(): Promise<{
   count: number;
   fromCache: boolean;
 }> {
-  const response = await fetch(CDN_URL);
+  const url = `${CDN_URL}?_t=${Date.now()}`;
+  const response = await fetch(url, {
+    headers: {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+    },
+  });
   if (!response.ok) {
     throw new Error(`CDN fetch failed: ${response.status}`);
   }
@@ -72,5 +78,5 @@ export async function needsSync(): Promise<boolean> {
   const last = await getLastSyncTime();
   if (!last) return true;
   const elapsed = Date.now() - new Date(last).getTime();
-  return elapsed > 24 * 60 * 60 * 1000; // 24 hours
+  return elapsed > STALE_TIME_MS;
 }

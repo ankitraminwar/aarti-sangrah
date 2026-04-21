@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: "center",
     justifyContent: "space-between",
-    zIndex: 9999,
+    zIndex: 10000,
     overflow: "hidden",
   },
   topGradient: {

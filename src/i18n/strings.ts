@@ -1,6 +1,61 @@
 import type { AppLanguage } from "@/src/types";
 
 const translations = {
+  // ── App Tour ────────────────────────────────────────────────────────
+  "tour.next": { hi: "अगला", mr: "पुढील", en: "Next" },
+  "tour.skip": { hi: "छोड़ें", mr: "वगळा", en: "Skip" },
+  "tour.done": { hi: "शुरू करें", mr: "सुरू करा", en: "Get Started" },
+  "tour.slide1.title": {
+    hi: "आरती संग्रह में स्वागत है",
+    mr: "आरती संग्रहात स्वागत आहे",
+    en: "Welcome to Aarti Sangrah",
+  },
+  "tour.slide1.desc": {
+    hi: "भक्ति से बनाया गया पवित्र आरतियों का सबसे बड़ा संग्रह। देवताओं और भाषाओं के अनुसार वर्गीकृत।",
+    mr: "भक्तीने बनवलेला पवित्र आरत्यांचा सर्वात मोठा संग्रह. देवता आणि भाषांनुसार वर्गीकृत.",
+    en: "The most comprehensive collection of sacred aartis, made with devotion. Categorised by deities and languages.",
+  },
+  "tour.slide2.title": {
+    hi: "श्रेणियाँ और खोजें",
+    mr: "श्रेण्या आणि शोधा",
+    en: "Browse & Search",
+  },
+  "tour.slide2.desc": {
+    hi: "होम स्क्रीन पर देवी-देवताओं की श्रेणियाँ देखें और खोज से तुरंत कोई भी आरती ढूँढें।",
+    mr: "होम स्क्रीनवर देवी-देवतांच्या श्रेण्या पहा आणि शोधाने लगेच कोणतीही आरती शोधा.",
+    en: "Explore deity categories on Home and instantly find any aarti with powerful search.",
+  },
+  "tour.slide3.title": {
+    hi: "पसंदीदा संग्रह",
+    mr: "आवडते संग्रह",
+    en: "Your Favorites",
+  },
+  "tour.slide3.desc": {
+    hi: "हृदय आइकन टैप करके पसंदीदा आरतियाँ सहेजें। पसंदीदा टैब से कभी भी जल्दी पहुँचें।",
+    mr: "हृदय चिन्ह टॅप करून आवडत्या आरत्या जतन करा. आवडते टॅबवरून केव्हाही त्वरित प्रवेश करा.",
+    en: "Save aartis by tapping the heart icon. Access them anytime from the Favorites tab.",
+  },
+  "tour.slide4.title": {
+    hi: "अपनी पसंद के अनुसार सेटिंग्स",
+    mr: "आपल्या आवडीनुसार सेटिंग्ज",
+    en: "Personalize Settings",
+  },
+  "tour.slide4.desc": {
+    hi: "थीम, अक्षर आकार और भाषा बदलें। सेटिंग्स से डेटा रीफ्रेश करें।",
+    mr: "थीम, अक्षर आकार आणि भाषा बदला. सेटिंग्जमधून डेटा रिफ्रेश करा.",
+    en: "Change theme, text size, and language. Refresh data anytime from Settings.",
+  },
+  "tour.slide5.title": {
+    hi: "ऑफ़लाइन पढ़ें, कहीं भी",
+    mr: "ऑफलाइन वाचा, कुठेही",
+    en: "Read Offline, Anywhere",
+  },
+  "tour.slide5.desc": {
+    hi: "सभी आरतियाँ आपके फ़ोन में सहेजी जाती हैं। बिना इंटरनेट के भी पढ़ें।",
+    mr: "सर्व आरत्या आपल्या फोनमध्ये जतन केल्या जातात. इंटरनेटशिवायही वाचा.",
+    en: "All aartis are saved on your phone. Read even without internet.",
+  },
+
   // ── Tabs ──────────────────────────────────────────────────────────
   "tab.home": { hi: "होम", mr: "होम", en: "Home" },
   "tab.search": { hi: "खोजें", mr: "शोधा", en: "Search" },
@@ -19,7 +74,7 @@ const translations = {
     mr: "आपला पवित्र संग्रह तयार होत आहे...",
     en: "Preparing your sacred collection...",
   },
-  "home.todaysAarti": { hi: "आज की आरती", mr: "आजची आरती", en: "Today's Aarti" },
+  "home.todaysAarti": { hi: "आज की प्रार्थना", mr: "आजची प्रार्थना", en: "Today's Prayer" },
   "home.collections": { hi: "दैवी संग्रह", mr: "दैवी संग्रह", en: "Divine Collections" },
   "home.popular": { hi: "लोकप्रिय आरतियाँ", mr: "लोकप्रिय आरत्या", en: "Popular Aartis" },
   "home.seeAll": { hi: "सभी देखें", mr: "सर्व पहा", en: "See All" },
@@ -116,11 +171,21 @@ const translations = {
     mr: "आरत्या क्लाउडवरून रिफ्रेश झाल्या आहेत.",
     en: "Aartis have been refreshed from the cloud.",
   },
-  "settings.syncOffline": { hi: "ऑफलाइन", mr: "ऑफलाइन", en: "Offline" },
+  "settings.syncNoInternet": {
+    hi: "इंटरनेट नहीं है",
+    mr: "इंटरनेट नाही",
+    en: "No Internet Connection",
+  },
+  "settings.syncNoInternetMsg": {
+    hi: "डेटा सिंक करने के लिए इंटरनेट कनेक्शन आवश्यक है। कृपया अपना नेटवर्क जाँचें और दोबारा कोशिश करें।",
+    mr: "डेटा सिंक करण्यासाठी इंटरनेट कनेक्शन आवश्यक आहे. कृपया आपले नेटवर्क तपासा आणि पुन्हा प्रयत्न करा.",
+    en: "An internet connection is required to sync data. Please check your network and try again.",
+  },
+  "settings.syncOffline": { hi: "सिंक विफल", mr: "सिंक अयशस्वी", en: "Sync Failed" },
   "settings.syncOfflineMsg": {
-    hi: "सर्वर से संपर्क नहीं हो सका। कैश्ड आरतियाँ उपलब्ध हैं।",
-    mr: "सर्व्हरशी संपर्क होऊ शकला नाही. कॅश्ड आरत्या उपलब्ध आहेत.",
-    en: "Could not reach the server. Your cached aartis are still available.",
+    hi: "सर्वर से संपर्क नहीं हो सका। आपकी सहेजी हुई आरतियाँ अभी भी उपलब्ध हैं।",
+    mr: "सर्व्हरशी संपर्क होऊ शकला नाही. आपल्या जतन केलेल्या आरत्या अजूनही उपलब्ध आहेत.",
+    en: "Could not reach the server. Your saved aartis are still available.",
   },
 
   // ── Category Screen ───────────────────────────────────────────────
@@ -258,6 +323,91 @@ const translations = {
     hi: "यहाँ आरती का अनुरोध करें",
     mr: "येथे आरतीची विनंती करा",
     en: "Request an Aarti here",
+  },
+
+  // ── Settings — Privacy row ─────────────────────────────────────────
+  "settings.privacy": {
+    hi: "गोपनीयता नीति",
+    mr: "गोपनीयता धोरण",
+    en: "Privacy Policy",
+  },
+  "settings.privacyDesc": {
+    hi: "हम आपका डेटा कैसे संभालते हैं",
+    mr: "आम्ही आपला डेटा कसा हाताळतो",
+    en: "How we handle your data",
+  },
+
+  // ── Privacy Policy Screen ─────────────────────────────────────────
+  "privacy.title": { hi: "गोपनीयता नीति", mr: "गोपनीयता धोरण", en: "Privacy Policy" },
+  "privacy.intro": {
+    hi: "आपकी गोपनीयता हमारे लिए महत्वपूर्ण है। आरती संग्रह आपकी गोपनीयता का सम्मान करने के लिए बनाया गया है — हम चीजें सरल रखते हैं: आपका डेटा आपके डिवाइस पर ही रहता है।",
+    mr: "आपली गोपनीयता आमच्यासाठी महत्त्वाची आहे. आरती संग्रह आपल्या गोपनीयतेचा आदर करण्यासाठी डिझाइन केले आहे — आम्ही गोष्टी सोप्या ठेवतो: आपला डेटा आपल्या डिव्हाइसवरच राहतो.",
+    en: "Your privacy matters to us. Aarti Sangrah is designed to respect your privacy — we keep things simple: your data stays on your device.",
+  },
+  "privacy.s1.title": {
+    hi: "कोई व्यक्तिगत डेटा नहीं",
+    mr: "कोणताही वैयक्तिक डेटा नाही",
+    en: "No Personal Data Collected",
+  },
+  "privacy.s1.body": {
+    hi: "आरती संग्रह कोई भी व्यक्तिगत पहचान योग्य जानकारी एकत्र, संग्रहीत या प्रसारित नहीं करता। हम आपका नाम, ईमेल, फोन नंबर या स्थान नहीं माँगते। कोई खाता पंजीकरण आवश्यक नहीं है।",
+    mr: "आरती संग्रह कोणतीही वैयक्तिकरित्या ओळखता येणारी माहिती गोळा करत नाही, संग्रहित करत नाही किंवा प्रसारित करत नाही. आम्ही आपले नाव, ईमेल, फोन नंबर किंवा स्थान विचारत नाही. खाते नोंदणी आवश्यक नाही.",
+    en: "Aarti Sangrah does not collect, store, or transmit any personally identifiable information. We do not ask for your name, email, phone number, or location. No account registration is required.",
+  },
+  "privacy.s2.title": {
+    hi: "सारा डेटा आपके डिवाइस पर",
+    mr: "सर्व डेटा आपल्या डिव्हाइसवर",
+    en: "All Data Stays on Your Device",
+  },
+  "privacy.s2.body": {
+    hi: "आरतियाँ, आपके पसंदीदा और ऐप की प्राथमिकताएँ (थीम, अक्षर आकार, भाषा) सभी SQLite का उपयोग करके आपके डिवाइस पर स्थानीय रूप से संग्रहीत हैं। यह डेटा आपके फोन से बाहर नहीं जाता।",
+    mr: "आरत्या, आपले आवडते आणि ॲप प्राधान्ये (थीम, अक्षर आकार, भाषा) सर्व SQLite वापरून आपल्या डिव्हाइसवर स्थानिकरित्या संग्रहित आहेत. हा डेटा आपल्या फोनमधून बाहेर जात नाही.",
+    en: "Aartis, your favorites, and app preferences (theme, font size, language) are all stored locally on your device using SQLite. This data never leaves your phone and is not accessible to us.",
+  },
+  "privacy.s3.title": {
+    hi: "इंटरनेट केवल सामग्री सिंक के लिए",
+    mr: "इंटरनेट फक्त सामग्री सिंकसाठी",
+    en: "Internet Used Only for Content Sync",
+  },
+  "privacy.s3.body": {
+    hi: "ऐप केवल हमारे CDN (jsDelivr) से नवीनतम आरती सामग्री डाउनलोड करने के लिए इंटरनेट से जुड़ता है। इस प्रक्रिया के दौरान कोई उपयोग डेटा, एनालिटिक्स या व्यक्तिगत जानकारी नहीं भेजी जाती। सिंक के बाद ऐप पूरी तरह ऑफलाइन काम करता है।",
+    mr: "ॲप फक्त आमच्या CDN (jsDelivr) वरून नवीनतम आरती सामग्री डाउनलोड करण्यासाठी इंटरनेटशी जोडते. या प्रक्रियेदरम्यान कोणताही वापर डेटा, विश्लेषण किंवा वैयक्तिक माहिती पाठवली जात नाही. सिंक झाल्यानंतर ॲप पूर्णपणे ऑफलाइन काम करते.",
+    en: "The app connects to the internet solely to download the latest aarti content from our CDN (jsDelivr). No usage data, analytics, or personal information is sent during this process. The app works fully offline once synced.",
+  },
+  "privacy.s4.title": {
+    hi: "कोई विज्ञापन, कोई ट्रैकिंग नहीं",
+    mr: "कोणतेही जाहिरात, कोणतीही ट्रॅकिंग नाही",
+    en: "No Ads, No Trackers",
+  },
+  "privacy.s4.body": {
+    hi: "आरती संग्रह में कोई विज्ञापन नहीं है और कोई तृतीय-पक्ष एनालिटिक्स या ट्रैकिंग SDK का उपयोग नहीं किया जाता। आपकी पढ़ने की आदतें और प्राथमिकताएँ कभी निगरानी या साझा नहीं की जाती।",
+    mr: "आरती संग्रहात कोणत्याही जाहिराती नाहीत आणि कोणत्याही तृतीय-पक्ष विश्लेषण किंवा ट्रॅकिंग SDK चा वापर केला जात नाही. आपल्या वाचन सवयी आणि प्राधान्ये कधीही निरीक्षण किंवा सामायिक केली जात नाहीत.",
+    en: "Aarti Sangrah contains no advertisements and uses no third-party analytics or tracking SDKs. Your reading habits and preferences are never monitored or shared.",
+  },
+  "privacy.s5.title": {
+    hi: "सभी उम्र के लिए सुरक्षित",
+    mr: "सर्व वयोगटांसाठी सुरक्षित",
+    en: "Safe for All Ages",
+  },
+  "privacy.s5.body": {
+    hi: "आरती संग्रह एक भक्ति ऐप है जो सभी उम्र के लिए उपयुक्त है। चूँकि हम कोई व्यक्तिगत डेटा एकत्र नहीं करते, बच्चे बिना किसी चिंता के इसका उपयोग कर सकते हैं।",
+    mr: "आरती संग्रह हे एक भक्ती ॲप आहे जे सर्व वयोगटांसाठी योग्य आहे. आम्ही कोणताही वैयक्तिक डेटा गोळा करत नसल्यामुळे, मुले कोणत्याही चिंतेशिवाय याचा वापर करू शकतात.",
+    en: "Aarti Sangrah is a devotional app suitable for all ages. Since we collect no personal data, the app is safe for children to use without any concern.",
+  },
+  "privacy.s6.title": {
+    hi: "नीति में परिवर्तन",
+    mr: "धोरणातील बदल",
+    en: "Changes to This Policy",
+  },
+  "privacy.s6.body": {
+    hi: "हम समय-समय पर इस गोपनीयता नीति को अपडेट कर सकते हैं। कोई भी बदलाव ऐप में प्रतिबिंबित किया जाएगा। अपडेट के बाद ऐप का निरंतर उपयोग संशोधित नीति की स्वीकृति को दर्शाता है।",
+    mr: "आम्ही वेळोवेळी हे गोपनीयता धोरण अपडेट करू शकतो. कोणतेही बदल ॲपमध्ये प्रतिबिंबित केले जातील. अपडेटनंतर ॲपचा सतत वापर सुधारित धोरणाची स्वीकृती दर्शवतो.",
+    en: "We may update this privacy policy from time to time. Any changes will be reflected in the app. Continued use of the app after updates constitutes acceptance of the revised policy.",
+  },
+  "privacy.lastUpdated": {
+    hi: "अंतिम अपडेट: अप्रैल 2026",
+    mr: "शेवटचे अपडेट: एप्रिल 2026",
+    en: "Last updated: April 2026",
   },
 } as const;
 
