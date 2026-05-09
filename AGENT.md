@@ -88,18 +88,20 @@ aarti-sangrah/
 
 ## 3. Commands
 
-| Action              | Command                                             |
-| ------------------- | --------------------------------------------------- |
-| Install deps        | `yarn install`                                      |
-| Start dev server    | `yarn start`                                        |
-| Run on Android      | `yarn android`                                      |
-| Lint                | `yarn lint`                                         |
-| Format              | `yarn format`                                       |
-| Format check        | `yarn format:check`                                 |
-| TypeScript check    | `npx tsc --noEmit`                                  |
-| Expo doctor         | `npx expo-doctor`                                   |
-| EAS build (preview) | `eas build --profile preview --platform android`    |
-| EAS build (prod)    | `eas build --profile production --platform android` |
+| Action               | Command                                             |
+| -------------------- | --------------------------------------------------- |
+| Install deps         | `yarn install`                                      |
+| Start dev server     | `yarn start`                                        |
+| Run on Android       | `yarn android`                                      |
+| Lint                 | `yarn lint`                                         |
+| Format               | `yarn format`                                       |
+| Format check         | `yarn format:check`                                 |
+| TypeScript check     | `npx tsc --noEmit`                                  |
+| Expo doctor          | `npx expo-doctor`                                   |
+| EAS build (preview)  | `eas build --profile preview --platform android`    |
+| EAS build (prod)     | `eas build --profile production --platform android` |
+| OTA update (prod)    | `eas update --channel production --message "..."`   |
+| Submit to Play Store | `eas submit --platform android --latest`            |
 
 ---
 
@@ -273,11 +275,22 @@ All tab screens and the aarti detail screen use safe area handling:
 - User-controlled via On/Off chip toggle in Settings > Notifications
 - Permission is requested **only on user action** (never silently on startup)
 - If permission is denied, an `AppModal` explains how to enable it in device settings
-- 4 fixed daily slots: 6:00 AM · 12:00 PM · 6:00 PM · 9:00 PM
-- 1 random slot between 6 AM–9 PM
+- **4 fixed daily slots:** 6:00 AM (morning) · 12:00 PM (afternoon) · 6:00 PM (evening) · 9:00 PM (night)
+- **1 random slot** between 8 AM–8 PM each day (picks a random DB aarti)
+- **Weekly day-of-week notifications:** `scheduleAllNotifications()` reads `tags` from the local SQLite DB and schedules a `WEEKLY` trigger at 7:30 AM for each aarti whose tags include a day name (`"sunday"` → `"saturday"`). Examples: Hanuman Chalisa on Tuesday, Santoshi Mata / Laxmi Aarti on Friday.
+- **Morning personalization:** the 6 AM slot title and body are replaced with the first `"morning"`-tagged aarti from the DB (e.g., Sukhkarta Dukhharta).
+- **Content-type awareness:** `getTypeLabel(type, lang)` maps the aarti's `type` field to the correct localized word:
+  - `mantra` → मंत्र / mantra
+  - `chalisa` → चालीसा / chalisa
+  - `stotra` / `stotram` → स्तोत्र / stotra
+  - `stuti` → स्तुति / stuti
+  - `shlok` / `shloka` → श्लोक / shloka
+  - `prarthana` → प्रार्थना / prayer
+  - _(default)_ → आरती / aarti
 - All notification text is localized (hi/mr/en) and re-scheduled when language changes
 - State persisted in SQLite via `pref_notificationsEnabled` sync_meta key
 - Implementation: `src/services/notifications.ts`
+- **Adding new `type` values:** update `getTypeLabel()` in `notifications.ts`; otherwise the notification will fall back to "aarti".
 
 ---
 
