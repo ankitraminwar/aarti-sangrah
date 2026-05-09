@@ -325,6 +325,23 @@ const translations = {
     en: "Request an Aarti here",
   },
 
+  // ── Settings — Share App ──────────────────────────────────────────
+  "settings.shareApp": {
+    hi: "ऐप शेयर करें",
+    mr: "ॲप शेअर करा",
+    en: "Share App",
+  },
+  "settings.shareAppDesc": {
+    hi: "दोस्तों और परिवार के साथ साझा करें",
+    mr: "मित्र आणि कुटुंबासह शेअर करा",
+    en: "Share with friends & family",
+  },
+  "settings.shareAppMessage": {
+    hi: "🕉️ *आरती संग्रह — डेली डिवोशन ऐप*\n\n🌸 सभी भक्ति आरतियाँ एक ही जगह\n🌐 हिन्दी · मराठी · English में उपलब्ध\n⚡ ऑफ़लाइन काम करता है — कभी भी, कहीं भी\n❤️ अपनी पसंदीदा आरतियाँ सहेजें\n\n📲 मुफ़्त डाउनलोड करें:",
+    mr: "🕉️ *आरती संग्रह — डेली डिवोशन ॲप*\n\n🌸 सर्व भक्ती आरत्या एकाच ठिकाणी\n🌐 हिन्दी · मराठी · English मध्ये उपलब्ध\n⚡ ऑफलाइन काम करतो — केव्हाही, कुठेही\n❤️ आवडत्या आरत्या जतन करा\n\n📲 विनामूल्य डाउनलोड करा:",
+    en: "🕉️ *Aarti Sangrah — Daily Devotion App*\n\n🌸 All devotional aartis in one place\n🌐 App available in Hindi · Marathi · English\n⚡ Works offline — anytime, anywhere\n❤️ Save your favorite aartis\n\n📲 Download Free:",
+  },
+
   // ── Settings — Privacy row ─────────────────────────────────────────
   "settings.privacy": {
     hi: "गोपनीयता नीति",
@@ -408,6 +425,57 @@ const translations = {
     hi: "अंतिम अपडेट: अप्रैल 2026",
     mr: "शेवटचे अपडेट: एप्रिल 2026",
     en: "Last updated: April 2026",
+  },
+
+  // ── Detail Screen — share card download link ──────────────────────
+  "detail.downloadAt": {
+    hi: "📲 डाउनलोड करें:",
+    mr: "📲 डाउनलोड करा:",
+    en: "📲 Download:",
+  },
+
+  // ── Notifications ─────────────────────────────────────────────────
+  "settings.notifOn": { hi: "चालू", mr: "चालू", en: "On" },
+  "settings.notifOff": { hi: "बंद", mr: "बंद", en: "Off" },
+  "settings.notifications": {
+    hi: "सूचनाएँ",
+    mr: "सूचना",
+    en: "Notifications",
+  },
+  "settings.notificationsDesc": {
+    hi: "दैनिक भक्ति अनुस्मारक प्राप्त करें",
+    mr: "दैनिक भक्ती स्मरणपत्रे मिळवा",
+    en: "Receive daily devotional reminders",
+  },
+  "settings.notifMorning": {
+    hi: "सुबह की आरती",
+    mr: "सकाळची आरती",
+    en: "Morning Aarti",
+  },
+  "settings.notifAfternoon": {
+    hi: "दोपहर की आरती",
+    mr: "दुपारची आरती",
+    en: "Afternoon Aarti",
+  },
+  "settings.notifEvening": {
+    hi: "संध्या आरती",
+    mr: "सायंकाळची आरती",
+    en: "Evening Aarti",
+  },
+  "settings.notifNight": {
+    hi: "रात्रि प्रार्थना",
+    mr: "रात्रीची प्रार्थना",
+    en: "Night Prayer",
+  },
+  "settings.notifRandom": {
+    hi: "आज की अनुशंसित आरती",
+    mr: "आजची शिफारस केलेली आरती",
+    en: "Today's Recommended Aarti",
+  },
+  "settings.notifPermissionDenied": {
+    hi: "सूचना अनुमति नहीं मिली। कृपया डिवाइस सेटिंग्स में अनुमति दें।",
+    mr: "सूचना परवानगी नाकारली गेली. कृपया डिव्हाइस सेटिंग्जमध्ये परवानगी द्या.",
+    en: "Notification permission denied. Please enable it in device settings.",
   },
 } as const;
 

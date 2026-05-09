@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 
 import { AppText, LoadingView } from "@/src/components";
-import { Radius, Spacing } from "@/src/constants";
+import { PLAY_STORE_URL, Radius, Spacing } from "@/src/constants";
 import { getAartiById, upsertRecent } from "@/src/database";
 import { useFontSize, useT, useTheme } from "@/src/hooks";
 import { useAppStore, useFavoritesStore } from "@/src/store";
@@ -169,6 +169,9 @@ export function AartiDetailScreen() {
           style={{ color: colors.outline, textAlign: "center", marginTop: Spacing.md }}
         >
           {t("detail.sharedFrom")}
+        </AppText>
+        <AppText variant="labelSm" style={{ color: colors.primary, textAlign: "center" }}>
+          {t("detail.downloadAt")} {PLAY_STORE_URL}
         </AppText>
       </View>
     );

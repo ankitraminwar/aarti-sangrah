@@ -10,6 +10,7 @@ An offline-first mobile app for Hindu devotional hymns (aartis), built with Expo
 - **Share & Copy** — Share aartis as beautifully styled images or copy to clipboard
 - **Customizable** — Light/dark theme, adjustable text size
 - **Daily Aarti** — Featured aarti on the home screen each day
+- **Daily Notifications** — Optional devotional reminders at 4 times a day (user-controlled, localized)
 - **Full-Text Search** — FTS5-powered search by name, deity, lyrics, or tags
 - **Categories** — Browse by deity or occasion
 - **Smooth Animations** — All animations run on the UI thread via react-native-reanimated
@@ -34,7 +35,7 @@ An offline-first mobile app for Hindu devotional hymns (aartis), built with Expo
 
 - Node.js >= 18
 - Yarn
-- Android Studio or Xcode
+- Android Studio
 
 ### Setup
 
@@ -47,9 +48,6 @@ yarn start
 
 # Run on Android
 yarn android
-
-# Run on iOS
-yarn ios
 ```
 
 ## Scripts
@@ -58,7 +56,6 @@ yarn ios
 | ------------------- | ------------------------------ |
 | `yarn start`        | Start Expo dev server          |
 | `yarn android`      | Run on Android device/emulator |
-| `yarn ios`          | Run on iOS simulator           |
 | `yarn lint`         | Run ESLint                     |
 | `yarn format`       | Format code with Prettier      |
 | `yarn format:check` | Check formatting               |
@@ -86,9 +83,11 @@ See [AGENT.md](AGENT.md) for detailed architecture documentation.
 ## Architecture Highlights
 
 - **React Compiler** enabled for automatic memoization
+- **Android / Play Store only** — no iOS-specific code paths
 - **Favorites** loaded once at app startup — screens subscribe via Zustand, no redundant fetches
 - **Animations** use `react-native-reanimated` (UI thread) — never the old `Animated` from react-native
 - **Share card** content deduplicated via `renderShareCard()` helper (share + copy use the same JSX)
+- **Notifications** are user-controlled — never requested silently on startup; re-scheduled automatically when language changes
 - **Fonts** limited to 4 loaded weights (NotoSerif 400/700 + PlusJakartaSans 400/500/600/700) — all Typography tokens map to these
 
 ## License

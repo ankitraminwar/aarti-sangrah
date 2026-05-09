@@ -72,6 +72,7 @@ function RootNavigator() {
         <Stack.Screen name="aarti/[id]" options={{ animation: "slide_from_bottom" }} />
         <Stack.Screen name="category/[name]" />
         <Stack.Screen name="help" />
+        <Stack.Screen name="privacy" />
       </Stack>
       <StatusBar style={isDark ? "light" : "dark"} />
     </ThemeProvider>
@@ -102,7 +103,9 @@ export default function RootLayout() {
           useFavoritesStore.getState().loadFavorites(),
         ]),
       )
-      .then(() => setDbReady(true));
+      .then(() => {
+        setDbReady(true);
+      });
   }, []);
 
   useEffect(() => {

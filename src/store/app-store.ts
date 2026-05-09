@@ -11,6 +11,8 @@ interface AppState {
   setLanguage: (lang: AppLanguage) => void;
   hasSeenTour: boolean;
   setHasSeenTour: (seen: boolean) => void;
+  notificationsEnabled: boolean;
+  setNotificationsEnabled: (enabled: boolean) => void;
   loadPersistedSettings: () => Promise<void>;
 }
 
@@ -23,9 +25,14 @@ export const useAppStore = create<AppState>((set) => ({
   fontSize: "medium",
   language: "hi",
   hasSeenTour: false,
+  notificationsEnabled: false,
   setHasSeenTour: (seen) => {
     set({ hasSeenTour: seen });
     setSyncMeta("pref_hasSeenTour", seen ? "true" : "false");
+  },
+  setNotificationsEnabled: (enabled) => {
+    set({ notificationsEnabled: enabled });
+    setSyncMeta("pref_notificationsEnabled", enabled ? "true" : "false");
   },
   setThemeMode: (mode) => {
     set({ themeMode: mode });
@@ -40,14 +47,16 @@ export const useAppStore = create<AppState>((set) => ({
     setSyncMeta("pref_language", lang);
   },
   loadPersistedSettings: async () => {
-    const [theme, font, lang, tour] = await Promise.all([
+    const [theme, font, lang, tour, notif] = await Promise.all([
       getSyncMeta("pref_themeMode"),
       getSyncMeta("pref_fontSize"),
       getSyncMeta("pref_language"),
       getSyncMeta("pref_hasSeenTour"),
+      getSyncMeta("pref_notificationsEnabled"),
     ]);
-    const updates: Partial<Pick<AppState, "themeMode" | "fontSize" | "language" | "hasSeenTour">> =
-      {};
+    const updates: Partial<
+      Pick<AppState, "themeMode" | "fontSize" | "language" | "hasSeenTour" | "notificationsEnabled">
+    > = {};
     if (theme && VALID_THEMES.includes(theme as ThemeMode)) {
       updates.themeMode = theme as ThemeMode;
     }
@@ -59,6 +68,9 @@ export const useAppStore = create<AppState>((set) => ({
     }
     if (tour === "true") {
       updates.hasSeenTour = true;
+    }
+    if (notif === "true") {
+      updates.notificationsEnabled = true;
     }
     if (Object.keys(updates).length > 0) {
       set(updates);

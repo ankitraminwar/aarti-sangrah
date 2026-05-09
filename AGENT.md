@@ -45,7 +45,9 @@ aarti-sangrah/
 │   │   ├── theme.ts          # LightColors, DarkColors, Spacing, Radius, Typography
 │   │   └── config.ts         # CDN_URL, DB_NAME, STALE_TIME, APP_VERSION
 │   ├── database/index.ts     # SQLite schema, CRUD, sync_meta
-│   ├── services/cdn-sync.ts  # CDN fetch → normalize → upsert
+│   ├── services/
+│   │   ├── cdn-sync.ts       # CDN fetch → normalize → upsert
+│   │   └── notifications.ts  # Daily notification scheduling (user-controlled)
 │   ├── store/
 │   │   ├── app-store.ts      # themeMode, fontSize, language
 │   │   └── favorites-store.ts# favoriteIds Set, toggle, load
@@ -86,20 +88,18 @@ aarti-sangrah/
 
 ## 3. Commands
 
-| Action              | Command                                          |
-| ------------------- | ------------------------------------------------ |
-| Install deps        | `yarn install`                                   |
-| Start dev server    | `yarn start`                                     |
-| Run on Android      | `yarn android`                                   |
-| Run on iOS          | `yarn ios`                                       |
-| Lint                | `yarn lint`                                      |
-| Format              | `yarn format`                                    |
-| Format check        | `yarn format:check`                              |
-| TypeScript check    | `npx tsc --noEmit`                               |
-| Expo doctor         | `npx expo-doctor`                                |
-| Export (web)        | `npx expo export --platform web`                 |
-| EAS build (preview) | `eas build --profile preview --platform android` |
-| EAS build (prod)    | `eas build --profile production --platform all`  |
+| Action              | Command                                             |
+| ------------------- | --------------------------------------------------- |
+| Install deps        | `yarn install`                                      |
+| Start dev server    | `yarn start`                                        |
+| Run on Android      | `yarn android`                                      |
+| Lint                | `yarn lint`                                         |
+| Format              | `yarn format`                                       |
+| Format check        | `yarn format:check`                                 |
+| TypeScript check    | `npx tsc --noEmit`                                  |
+| Expo doctor         | `npx expo-doctor`                                   |
+| EAS build (preview) | `eas build --profile preview --platform android`    |
+| EAS build (prod)    | `eas build --profile production --platform android` |
 
 ---
 
@@ -177,7 +177,7 @@ CDN (jsdelivr) → cdn-sync.ts → SQLite (expo-sqlite)
 
 - **Server state**: `@tanstack/react-query` (DB reads, CDN sync)
 - **Client state**: Zustand stores
-  - `app-store`: themeMode, fontSize, language
+  - `app-store`: themeMode, fontSize, language, hasSeenTour, notificationsEnabled (all persisted to SQLite via `sync_meta`)
   - `favorites-store`: favoriteIds Set (synced with SQLite)
 - **Favorites** are loaded once at app startup in `_layout.tsx`. Individual screens subscribe to the store — do NOT call `loadFavorites()` in screen `useEffect` hooks.
 
@@ -200,24 +200,29 @@ Every screen:
 
 ## 6. Sharing & Copy
 
-### Image Sharing
+### Aarti Detail — Image Share & Copy
 
-Sharing uses **image format** (not plain text):
+Sharing an aarti uses **image format**:
 
-- `react-native-view-shot` captures a styled card view
-- Share card content is rendered via a `renderShareCard(keyPrefix)` helper to avoid duplication
+- `react-native-view-shot` captures a styled share card view
+- Share card rendered via `renderShareCard(keyPrefix)` helper to avoid duplication
 - Two `ViewShot` refs: one for file-based sharing (`expo-sharing`), one for base64 clipboard copy
-- Card includes: app logo, app name, aarti title, author, first few verses, footer
+- Card includes: app logo, app name, aarti title, author, first few verses, footer with Play Store URL
 - Shared via `expo-sharing` as PNG
 - Hidden `ViewShot` views are positioned off-screen (`left: -9999`)
 
 ### Image Copy
 
-Copy also uses **image format**:
-
 - A separate `ViewShot` with `result: "base64"` captures the styled card
 - `expo-clipboard` `setImageAsync(base64)` copies the image to clipboard
 - Copy button shows an animated checkmark icon for 2 seconds after copy
+
+### Settings — App Share
+
+App sharing from Settings is **plain text** (Android only):
+
+- Uses React Native `Share.share({ message })` with the Play Store URL
+- No image capture or ViewShot involved
 
 ---
 
@@ -259,18 +264,34 @@ All tab screens and the aarti detail screen use safe area handling:
 - App store has `language` field: `"hi"` | `"mr"` | `"en"`
 - Language selector in Settings screen
 - Labels defined in `APP_LANGUAGE_LABELS` in types
+- When language changes, scheduled notifications are automatically re-scheduled in the new language (if enabled)
+
+---
+
+## 10a. Notifications
+
+- User-controlled via On/Off chip toggle in Settings > Notifications
+- Permission is requested **only on user action** (never silently on startup)
+- If permission is denied, an `AppModal` explains how to enable it in device settings
+- 4 fixed daily slots: 6:00 AM · 12:00 PM · 6:00 PM · 9:00 PM
+- 1 random slot between 6 AM–9 PM
+- All notification text is localized (hi/mr/en) and re-scheduled when language changes
+- State persisted in SQLite via `pref_notificationsEnabled` sync_meta key
+- Implementation: `src/services/notifications.ts`
 
 ---
 
 ## 11. Build & Deploy
 
+**Target platform: Android / Google Play Store only.**
+
 ### EAS Profiles (`eas.json`)
 
 | Profile     | Platform | Distribution | Notes                      |
 | ----------- | -------- | ------------ | -------------------------- |
-| development | Both     | internal     | Dev client, APK/Simulator  |
-| preview     | Both     | internal     | Internal testing APK       |
-| production  | Both     | store        | Auto-increment versionCode |
+| development | android  | internal     | Dev client APK             |
+| preview     | android  | internal     | Internal testing APK       |
+| production  | android  | store        | Auto-increment versionCode |
 
 ### Pre-submission Checklist
 
@@ -278,11 +299,12 @@ All tab screens and the aarti detail screen use safe area handling:
 - [ ] `npx tsc --noEmit` — 0 errors
 - [ ] `yarn format:check` — all files formatted
 - [ ] `npx expo-doctor` — all checks pass
-- [ ] `npx expo export --platform web` — builds successfully
 - [ ] Tested light + dark themes
 - [ ] Tested all font sizes (small → xlarge)
 - [ ] App icons are real (not template)
 - [ ] Splash screen shows app logo
+- [ ] Notification permission flow tested (grant + deny)
+- [ ] Notifications fire in correct language after language change
 
 ---
 

@@ -10,3 +10,6 @@ export const APP_VERSION = "1.0.0";
 export const REQUEST_FORM_URL = "https://forms.gle/u9hGMXVS1XvLWnnE6";
 
 export const THINKERCART_URL = "https://www.thinkercart.com";
+
+export const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.thinkercart.aartisangrah";
