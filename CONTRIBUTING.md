@@ -221,7 +221,7 @@ aarti-sangrah/
 │   ├── types/             # TypeScript interfaces ONLY
 │   ├── constants/         # config.ts, theme.ts (shared constants)
 │   ├── database/          # SQLite CRUD & schema
-│   ├── services/          # Business logic (cdn-sync.ts)
+│   ├── services/          # Business logic (cdn-sync.ts, notifications.ts)
 │   ├── store/             # Zustand state (app-store.ts, favorites-store.ts)
 │   ├── hooks/             # Custom React hooks (use-theme.ts, use-t.ts)
 │   ├── i18n/              # Translations (strings.ts)
@@ -232,7 +232,7 @@ aarti-sangrah/
 **Rules:**
 
 - `app/` = Router config only. Actual UI goes in `src/screens/`
-- `src/services/` = Business logic. No UI code.
+- `src/services/` = Business logic. No UI code. `notifications.ts` reads `tags` and `type` from SQLite to build smart schedules — do not hardcode aarti titles or day names there.
 - `src/database/` = Database layer. Use parameterized queries.
 - `src/store/` = Zustand state. Keep sync with database.
 - `src/components/` = Reusable UI. No route-specific logic.
@@ -323,6 +323,7 @@ Reviewers will check:
 7. ✅ **Theme-Safe** — Colors from `useTheme()`, no hardcoded hex
 8. ✅ **Testing** — Manual tests pass, no console errors
 9. ✅ **Performance** — No obvious memory leaks or N+1 queries
+10. ✅ **Notifications** — `scheduleAllNotifications()` called after language change and after first CDN sync; `getTypeLabel()` updated if new `type` values are added to the CDN schema
 
 ---
 
@@ -334,6 +335,13 @@ Reviewers will check:
 # Verify import in service files
 grep -r "from.*constants" src/services/
 ```
+
+### Notifications not firing on the right day
+
+- Verify the aarti in question has the correct day tag in the CDN JSON (e.g. `"tuesday"`, `"friday"`)
+- After a CDN sync call `scheduleAllNotifications(lang)` again — it cancels and rebuilds all schedules
+- `WEEKLY` triggers require the weekday integer: Sunday=1 … Saturday=7
+- Check that `getTypeLabel()` covers the `type` value of the new aarti if the notification title looks wrong
 
 ### Stale data after sync
 

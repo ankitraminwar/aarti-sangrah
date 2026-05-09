@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AartiCard, AppText, EmptyState, LoadingView } from "@/src/components";
+import { AartiCard, AppText, EmptyState, LoadingView, MandalaDecoration } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getAartisByCategory } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
@@ -43,6 +43,12 @@ export function CategoryScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={styles.header}>
+        <MandalaDecoration
+          color={colors.primary}
+          size={220}
+          opacity={0.08}
+          style={styles.headerMandala}
+        />
         <AppText variant="labelMd" color={colors.primary}>
           {aartis.length} {aartis.length === 1 ? t("category.hymn") : t("category.hymns")}
         </AppText>
@@ -80,6 +86,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.lg,
     gap: Spacing.xs,
+    overflow: "hidden",
+  },
+  headerMandala: {
+    position: "absolute",
+    right: -40,
+    top: -20,
   },
   list: {
     paddingHorizontal: Spacing.xl,

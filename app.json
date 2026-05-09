@@ -2,7 +2,7 @@
   "expo": {
     "name": "Aarti Sangrah",
     "slug": "aarti-sangrah",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "aartisangrah",
@@ -23,7 +23,12 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.thinkercart.aartisangrah",
       "versionCode": 1,
-      "permissions": ["android.permission.INTERNET"]
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "output": "static",
@@ -48,7 +53,15 @@
       ],
       "expo-sqlite",
       "expo-localization",
-      "expo-updates"
+      "expo-updates",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/splash-icon.png",
+          "color": "#f97316",
+          "defaultChannel": "default"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -5,7 +5,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AartiCard, AppText, EmptyState, LoadingView } from "@/src/components";
+import { AartiCard, AppText, EmptyState, LoadingView, MandalaDecoration } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getFavoriteAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
@@ -31,6 +31,12 @@ export function FavoritesScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
         <View style={styles.headerSection}>
+          <MandalaDecoration
+            color={colors.primary}
+            size={220}
+            opacity={0.08}
+            style={styles.headerMandala}
+          />
           <AppText variant="headlineLg">{t("favorites.title")}</AppText>
         </View>
         <EmptyState
@@ -47,6 +53,12 @@ export function FavoritesScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
       <View style={styles.headerSection}>
+        <MandalaDecoration
+          color={colors.primary}
+          size={220}
+          opacity={0.08}
+          style={styles.headerMandala}
+        />
         <AppText variant="headlineLg">{t("favorites.title")}</AppText>
         <AppText variant="bodyMd" color={colors.onSurfaceVariant}>
           {favorites.length} {t("favorites.saved")}{" "}
@@ -82,6 +94,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
     gap: Spacing.xs,
+    overflow: "hidden",
+  },
+  headerMandala: {
+    position: "absolute",
+    right: -40,
+    top: -20,
   },
   list: {
     paddingHorizontal: Spacing.xl,

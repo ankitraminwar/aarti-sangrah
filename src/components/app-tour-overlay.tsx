@@ -18,6 +18,7 @@ import { t } from "@/src/i18n";
 import { useAppStore } from "@/src/store";
 
 import { AppText } from "./app-text";
+import { MandalaDecoration } from "./mandala-decoration";
 
 interface AppTourOverlayProps {
   onFinished: () => void;
@@ -160,6 +161,20 @@ export function AppTourOverlay({ onFinished }: AppTourOverlayProps) {
         end={{ x: 0, y: 0 }}
         style={styles.bottomGradient}
         pointerEvents="none"
+      />
+
+      {/* Mandala decorations */}
+      <MandalaDecoration
+        color={colors.primary}
+        size={300}
+        opacity={0.07}
+        style={{ position: "absolute", right: -70, top: -50 }}
+      />
+      <MandalaDecoration
+        color={colors.primary}
+        size={240}
+        opacity={0.05}
+        style={{ position: "absolute", left: -60, bottom: 100 }}
       />
 
       {/* Skip button top-right */}

@@ -2,14 +2,20 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Linking, Pressable, ScrollView, Share, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AppModal, AppText } from "@/src/components";
-import { APP_VERSION, Radius, Spacing, THINKERCART_URL } from "@/src/constants";
+import { AppModal, AppText, MandalaDecoration } from "@/src/components";
+import { APP_VERSION, PLAY_STORE_URL, Radius, Spacing, THINKERCART_URL } from "@/src/constants";
 import { useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
-import { fetchAndSyncAartis, getLastSyncTime } from "@/src/services";
+import {
+  cancelAllNotifications,
+  fetchAndSyncAartis,
+  getLastSyncTime,
+  requestNotificationPermission,
+  scheduleAllNotifications,
+} from "@/src/services";
 import { useAppStore } from "@/src/store";
 import type { AppLanguage, FontSizeLevel, ThemeMode } from "@/src/types";
 import { FONT_SIZE_MAP } from "@/src/types";
@@ -42,7 +48,16 @@ export function SettingsScreen() {
   const t = useT();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { themeMode, setThemeMode, fontSize, setFontSize, language, setLanguage } = useAppStore();
+  const {
+    themeMode,
+    setThemeMode,
+    fontSize,
+    setFontSize,
+    language,
+    setLanguage,
+    notificationsEnabled,
+    setNotificationsEnabled,
+  } = useAppStore();
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -56,6 +71,42 @@ export function SettingsScreen() {
       }
     });
   }, []);
+
+  const handleShareApp = useCallback(async () => {
+    const messageText = `${t("settings.shareAppMessage")}\n\n${PLAY_STORE_URL}`;
+    try {
+      await Share.share({ message: messageText, title: t("detail.appName") });
+    } catch {
+      // user cancelled or share not available
+    }
+  }, [t]);
+
+  const handleNotificationToggle = useCallback(async () => {
+    if (notificationsEnabled) {
+      await cancelAllNotifications();
+      setNotificationsEnabled(false);
+    } else {
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        await scheduleAllNotifications(language);
+        setNotificationsEnabled(true);
+      } else {
+        setModalTitle(t("settings.notifications"));
+        setModalMessage(t("settings.notifPermissionDenied"));
+        setModalVisible(true);
+      }
+    }
+  }, [notificationsEnabled, setNotificationsEnabled, language, t]);
+
+  const handleSetLanguage = useCallback(
+    (lang: AppLanguage) => {
+      setLanguage(lang);
+      if (notificationsEnabled) {
+        scheduleAllNotifications(lang).catch(() => {});
+      }
+    },
+    [setLanguage, notificationsEnabled],
+  );
 
   const handleSync = useCallback(async () => {
     setSyncing(true);
@@ -89,6 +140,12 @@ export function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
+          <MandalaDecoration
+            color={colors.primary}
+            size={260}
+            opacity={0.08}
+            style={styles.headerMandala}
+          />
           <AppText variant="headlineLg">{t("settings.title")}</AppText>
         </View>
 
@@ -187,7 +244,7 @@ export function SettingsScreen() {
               {LANGUAGE_OPTIONS.map((opt) => (
                 <Pressable
                   key={opt.value}
-                  onPress={() => setLanguage(opt.value)}
+                  onPress={() => handleSetLanguage(opt.value)}
                   style={[
                     styles.themeChip,
                     {
@@ -210,6 +267,75 @@ export function SettingsScreen() {
           </View>
         </View>
 
+        {/* Notifications Section */}
+        <View style={styles.section}>
+          <AppText variant="labelLg" color={colors.primary} style={styles.sectionTitle}>
+            {t("settings.notifications")}
+          </AppText>
+          <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}>
+            <AppText variant="titleSm">{t("settings.notifications")}</AppText>
+            <AppText variant="bodySm" color={colors.onSurfaceVariant}>
+              {t("settings.notificationsDesc")}
+            </AppText>
+            <View style={styles.optionRow}>
+              <Pressable
+                onPress={() => {
+                  if (!notificationsEnabled) handleNotificationToggle();
+                }}
+                style={[
+                  styles.themeChip,
+                  {
+                    backgroundColor: notificationsEnabled
+                      ? colors.primaryContainer
+                      : colors.surfaceContainer,
+                  },
+                ]}
+              >
+                <MaterialIcons
+                  name="notifications-active"
+                  size={20}
+                  color={notificationsEnabled ? colors.onPrimaryContainer : colors.onSurfaceVariant}
+                />
+                <AppText
+                  variant="labelMd"
+                  color={notificationsEnabled ? colors.onPrimaryContainer : colors.onSurfaceVariant}
+                >
+                  {t("settings.notifOn")}
+                </AppText>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  if (notificationsEnabled) handleNotificationToggle();
+                }}
+                style={[
+                  styles.themeChip,
+                  {
+                    backgroundColor: !notificationsEnabled
+                      ? colors.primaryContainer
+                      : colors.surfaceContainer,
+                  },
+                ]}
+              >
+                <MaterialIcons
+                  name="notifications-off"
+                  size={20}
+                  color={
+                    !notificationsEnabled ? colors.onPrimaryContainer : colors.onSurfaceVariant
+                  }
+                />
+                <AppText
+                  variant="labelMd"
+                  color={
+                    !notificationsEnabled ? colors.onPrimaryContainer : colors.onSurfaceVariant
+                  }
+                >
+                  {t("settings.notifOff")}
+                </AppText>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+
         {/* Data Section */}
         <View style={styles.section}>
           <AppText variant="labelLg" color={colors.primary} style={styles.sectionTitle}>
@@ -226,7 +352,8 @@ export function SettingsScreen() {
               },
             ]}
           >
-            <View style={styles.rowBetween}>
+            <View style={styles.rowIcon}>
+              <MaterialIcons name="cloud-download" size={24} color={colors.primary} />
               <View style={{ flex: 1, gap: Spacing.xs }}>
                 <AppText variant="titleSm">{t("settings.refreshAartis")}</AppText>
                 <AppText variant="bodySm" color={colors.onSurfaceVariant}>
@@ -237,7 +364,24 @@ export function SettingsScreen() {
                       : t("settings.fetchLatest")}
                 </AppText>
               </View>
-              <MaterialIcons name="cloud-download" size={24} color={colors.primary} />
+            </View>
+          </Pressable>
+        </View>
+
+        {/* Share App */}
+        <View style={styles.section}>
+          <Pressable
+            onPress={handleShareApp}
+            style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
+          >
+            <View style={styles.rowIcon}>
+              <MaterialIcons name="share" size={24} color={colors.primary} />
+              <View style={{ flex: 1, gap: Spacing.xs }}>
+                <AppText variant="titleSm">{t("settings.shareApp")}</AppText>
+                <AppText variant="bodySm" color={colors.onSurfaceVariant}>
+                  {t("settings.shareAppDesc")}
+                </AppText>
+              </View>
             </View>
           </Pressable>
         </View>
@@ -248,14 +392,14 @@ export function SettingsScreen() {
             onPress={() => router.push("/help")}
             style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
           >
-            <View style={styles.rowBetween}>
+            <View style={styles.rowIcon}>
+              <MaterialIcons name="help-outline" size={24} color={colors.primary} />
               <View style={{ flex: 1, gap: Spacing.xs }}>
                 <AppText variant="titleSm">{t("settings.helpFaq")}</AppText>
                 <AppText variant="bodySm" color={colors.onSurfaceVariant}>
                   {t("settings.helpFaqDesc")}
                 </AppText>
               </View>
-              <MaterialIcons name="help-outline" size={24} color={colors.primary} />
             </View>
           </Pressable>
         </View>
@@ -266,14 +410,14 @@ export function SettingsScreen() {
             onPress={() => router.push("/privacy")}
             style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
           >
-            <View style={styles.rowBetween}>
+            <View style={styles.rowIcon}>
+              <MaterialIcons name="shield" size={24} color={colors.primary} />
               <View style={{ flex: 1, gap: Spacing.xs }}>
                 <AppText variant="titleSm">{t("settings.privacy")}</AppText>
                 <AppText variant="bodySm" color={colors.onSurfaceVariant}>
                   {t("settings.privacyDesc")}
                 </AppText>
               </View>
-              <MaterialIcons name="shield" size={24} color={colors.primary} />
             </View>
           </Pressable>
         </View>
@@ -336,6 +480,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xl,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
+    overflow: "hidden",
+  },
+  headerMandala: {
+    position: "absolute",
+    right: -50,
+    top: -20,
   },
   section: {
     paddingHorizontal: Spacing.xl,
@@ -382,6 +532,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  rowIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
   },
   aboutRow: {
     flexDirection: "row",
