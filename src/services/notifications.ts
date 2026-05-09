@@ -1,3 +1,4 @@
+import { getAllAartis } from "@/src/database";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
@@ -67,13 +68,50 @@ const FIXED_SLOTS: {
 ];
 
 const RANDOM_CONTENT: Record<Lang, { title: string; body: string }> = {
-  hi: { title: "🕉️ आज की विशेष आरती", body: "आरती संग्रह में आज की अनुशंसित आरती देखें।" },
-  mr: { title: "🕉️ आजची विशेष आरती", body: "आरती संग्रहात आजची शिफारस केलेली आरती पहा." },
+  hi: {
+    title: "🕉️ आज का विशेष पाठ",
+    body: "आरती संग्रह में आज की अनुशंसित आरती, मंत्र या श्लोक देखें।",
+  },
+  mr: {
+    title: "🕉️ आजचे विशेष पाठ",
+    body: "आरती संग्रहात आजची शिफारस केलेली आरती, मंत्र किंवा श्लोक पहा.",
+  },
   en: {
-    title: "🕉️ Today's Recommended Aarti",
-    body: "Check out today's featured aarti in Aarti Sangrah.",
+    title: "🕉️ Today's Recommendation",
+    body: "Check out today's featured aarti, mantra or shloka in Aarti Sangrah.",
   },
 };
+
+/** Maps the `type` field from the CDN data to a short localized word. */
+function getTypeLabel(type: string, lang: Lang): string {
+  const t = type.toLowerCase();
+  if (lang === "en") {
+    if (t === "mantra") return "mantra";
+    if (t === "chalisa") return "chalisa";
+    if (t === "stotra" || t === "stotram") return "stotra";
+    if (t === "stuti") return "stuti";
+    if (t === "shlok" || t === "shloka") return "shloka";
+    if (t === "prarthana") return "prayer";
+    return "aarti";
+  }
+  if (lang === "mr") {
+    if (t === "mantra") return "मंत्र";
+    if (t === "chalisa") return "चाळीसा";
+    if (t === "stotra" || t === "stotram") return "स्तोत्र";
+    if (t === "stuti") return "स्तुती";
+    if (t === "shlok" || t === "shloka") return "श्लोक";
+    if (t === "prarthana") return "प्रार्थना";
+    return "आरती";
+  }
+  // hi (default)
+  if (t === "mantra") return "मंत्र";
+  if (t === "chalisa") return "चालीसा";
+  if (t === "stotra" || t === "stotram") return "स्तोत्र";
+  if (t === "stuti") return "स्तुति";
+  if (t === "shlok" || t === "shloka") return "श्लोक";
+  if (t === "prarthana") return "प्रार्थना";
+  return "आरती";
+}
 
 export async function requestNotificationPermission(): Promise<boolean> {
   if (Platform.OS === "web") return false;
@@ -97,11 +135,56 @@ export async function scheduleAllNotifications(lang: Lang = "hi"): Promise<boole
 
   await Notifications.cancelAllScheduledNotificationsAsync();
 
+  // Load aartis once — used for both morning and weekly slots
+  let allAartis: Awaited<ReturnType<typeof getAllAartis>> = [];
+  try {
+    allAartis = await getAllAartis();
+  } catch (err) {
+    console.warn("Failed to load aartis for notifications", err);
+  }
+
+  // Helper: extract localized title from an aarti row
+  const getTitle = (aarti: (typeof allAartis)[0]): string => {
+    try {
+      const t = JSON.parse(aarti.translationsJson);
+      if (t[lang]?.title) return t[lang].title;
+    } catch {}
+    return aarti.title;
+  };
+
+  // Personalize morning slot if we have a morning-tagged aarti
+  const morningAarti = allAartis.find((a) => {
+    try {
+      return (JSON.parse(a.tags) as string[]).includes("morning");
+    } catch {
+      return false;
+    }
+  });
+
+  const morningSlot = FIXED_SLOTS.find((s) => s.id === "aarti-morning")!;
+  const morningContent = morningAarti
+    ? {
+        hi: {
+          title: `🌅 सुप्रभात — ${getTypeLabel(morningAarti.type, "hi")}`,
+          body: `${getTitle(morningAarti)} के साथ दिन की शुरुआत करें। 🙏`,
+        },
+        mr: {
+          title: `🌅 सुप्रभात — ${getTypeLabel(morningAarti.type, "mr")}`,
+          body: `${getTitle(morningAarti)} सह दिवसाची सुरुवात करा. 🙏`,
+        },
+        en: {
+          title: `🌅 Good Morning — ${getTypeLabel(morningAarti.type, "en")}`,
+          body: `Begin your day with ${getTitle(morningAarti)}. 🙏`,
+        },
+      }
+    : morningSlot.content;
+
+  // Schedule fixed daily slots (morning slot uses dynamic content if available)
   for (const slot of FIXED_SLOTS) {
-    const { title, body } = slot.content[lang];
+    const content = slot.id === "aarti-morning" ? morningContent[lang] : slot.content[lang];
     await Notifications.scheduleNotificationAsync({
       identifier: slot.id,
-      content: { title, body, sound: true },
+      content: { title: content.title, body: content.body, sound: true },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
         hour: slot.hour,
@@ -110,8 +193,77 @@ export async function scheduleAllNotifications(lang: Lang = "hi"): Promise<boole
     });
   }
 
-  // Random recommendation — random hour between 6 and 20 (inclusive), random minute
-  const randomHour = 6 + Math.floor(Math.random() * 15); // 6..20
+  // Dynamic day-of-week slots based on JSON tags
+  try {
+    const dayTags: Record<string, number> = {
+      sunday: 1,
+      monday: 2,
+      tuesday: 3,
+      wednesday: 4,
+      thursday: 5,
+      friday: 6,
+      saturday: 7,
+    };
+
+    const scheduledDays = new Set<number>();
+
+    for (const aarti of allAartis) {
+      let tagsArr: string[] = [];
+      try {
+        tagsArr = JSON.parse(aarti.tags);
+      } catch {
+        continue;
+      }
+
+      for (const tag of tagsArr) {
+        const lowerTag = tag.toLowerCase();
+        if (dayTags[lowerTag]) {
+          const weekday = dayTags[lowerTag];
+
+          // Only schedule one notification per weekday to avoid spamming
+          if (scheduledDays.has(weekday)) continue;
+
+          const aartiTitle = getTitle(aarti);
+          const typeLabel = getTypeLabel(aarti.type, lang);
+          const localizedBody =
+            lang === "en"
+              ? `Today is an auspicious day to read this ${typeLabel}: ${aartiTitle}`
+              : lang === "mr"
+                ? `आज ${aartiTitle} हा ${typeLabel} वाचण्याचा शुभ दिवस आहे`
+                : `आज ${aartiTitle} ${typeLabel} पढ़ने का शुभ दिन है`;
+
+          const weeklyTitle =
+            lang === "en"
+              ? `🌸 Today's ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}`
+              : lang === "mr"
+                ? `🌸 आजचा ${typeLabel}`
+                : `🌸 आज का ${typeLabel}`;
+
+          await Notifications.scheduleNotificationAsync({
+            identifier: `aarti-weekly-${weekday}-${aarti.id}`,
+            content: {
+              title: weeklyTitle,
+              body: localizedBody,
+              sound: true,
+            },
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+              weekday,
+              hour: 7,
+              minute: 30,
+            },
+          });
+
+          scheduledDays.add(weekday);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to schedule weekly tag-based notifications", err);
+  }
+
+  // Random recommendation — random hour between 8 and 20 (inclusive), random minute
+  const randomHour = 8 + Math.floor(Math.random() * 13); // 8..20
   const randomMinute = Math.floor(Math.random() * 60);
   const { title, body } = RANDOM_CONTENT[lang];
   await Notifications.scheduleNotificationAsync({

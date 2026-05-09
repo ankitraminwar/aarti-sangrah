@@ -5,7 +5,7 @@ import React, { useCallback, useState } from "react";
 import { Linking, Pressable, ScrollView, Share, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AppModal, AppText } from "@/src/components";
+import { AppModal, AppText, MandalaDecoration } from "@/src/components";
 import { APP_VERSION, PLAY_STORE_URL, Radius, Spacing, THINKERCART_URL } from "@/src/constants";
 import { useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
@@ -140,6 +140,12 @@ export function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
+          <MandalaDecoration
+            color={colors.primary}
+            size={260}
+            opacity={0.08}
+            style={styles.headerMandala}
+          />
           <AppText variant="headlineLg">{t("settings.title")}</AppText>
         </View>
 
@@ -474,6 +480,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xl,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
+    overflow: "hidden",
+  },
+  headerMandala: {
+    position: "absolute",
+    right: -50,
+    top: -20,
   },
   section: {
     paddingHorizontal: Spacing.xl,

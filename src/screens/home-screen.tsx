@@ -6,7 +6,14 @@ import React, { useCallback, useState } from "react";
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AartiCard, AppText, CategoryCard, DataSyncOverlay, SectionHeader } from "@/src/components";
+import {
+  AartiCard,
+  AnimatedHomeMandala,
+  AppText,
+  CategoryCard,
+  DataSyncOverlay,
+  SectionHeader,
+} from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getAllAartis, getCategories, getFeaturedAartis, getRecentAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
@@ -63,6 +70,14 @@ export function HomeScreen() {
     staleTime: Infinity,
   });
 
+  const getGreetingConfig = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return { key: "greeting.morning", icon: "wb-sunny" } as const;
+    if (hour < 17) return { key: "greeting.afternoon", icon: "wb-incandescent" } as const;
+    return { key: "greeting.evening", icon: "nights-stay" } as const;
+  };
+  const greeting = getGreetingConfig();
+
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -108,11 +123,20 @@ export function HomeScreen() {
         end={{ x: 0, y: 1 }}
         style={[styles.headerGradient, { paddingTop: insets.top + Spacing.xl }]}
       >
+        <AnimatedHomeMandala
+          color={colors.primary}
+          size={220}
+          opacity={0.09}
+          style={styles.headerMandala}
+        />
         <View style={styles.headerRow}>
           <View>
-            <AppText variant="labelMd" color={colors.primary}>
-              {t("home.badge")}
-            </AppText>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 }}>
+              <MaterialIcons name={greeting.icon} size={16} color={colors.primary} />
+              <AppText variant="labelMd" color={colors.primary}>
+                {t(greeting.key as any)} • {t("home.badge")}
+              </AppText>
+            </View>
             <AppText variant="displayLg" style={styles.headerTitle}>
               {t("home.headline")}
             </AppText>
@@ -217,6 +241,7 @@ const styles = StyleSheet.create({
   headerGradient: {
     paddingBottom: Spacing.xl,
     paddingHorizontal: Spacing.xl,
+    overflow: "hidden",
   },
   headerRow: {
     flexDirection: "row",
@@ -225,6 +250,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     marginTop: Spacing.sm,
+  },
+  headerMandala: {
+    position: "absolute",
+    right: -40,
+    top: -30,
   },
   headerActions: {
     flexDirection: "row",

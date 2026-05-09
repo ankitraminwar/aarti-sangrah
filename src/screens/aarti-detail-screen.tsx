@@ -10,7 +10,7 @@ import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 
-import { AppText, LoadingView } from "@/src/components";
+import { AppText, LoadingView, MandalaDecoration } from "@/src/components";
 import { PLAY_STORE_URL, Radius, Spacing } from "@/src/constants";
 import { getAartiById, upsertRecent } from "@/src/database";
 import { useFontSize, useT, useTheme } from "@/src/hooks";
@@ -123,6 +123,18 @@ export function AartiDetailScreen() {
     const displayVerses = limitVerses ? verses.slice(0, 4) : verses;
     return (
       <View style={[styles.shareCard, { backgroundColor: colors.surface }]}>
+        <MandalaDecoration
+          color={colors.primary}
+          size={180}
+          opacity={0.09}
+          style={{ position: "absolute", right: -40, top: -40 }}
+        />
+        <MandalaDecoration
+          color={colors.primary}
+          size={140}
+          opacity={0.06}
+          style={{ position: "absolute", left: -25, bottom: -25 }}
+        />
         <View style={styles.shareHeader}>
           <Image source={require("@/assets/images/icon.png")} style={styles.shareLogo} />
           <View>
@@ -390,6 +402,7 @@ const styles = StyleSheet.create({
     width: 360,
     padding: Spacing.xl,
     gap: Spacing.sm,
+    overflow: "hidden",
   },
   shareHeader: {
     flexDirection: "row",

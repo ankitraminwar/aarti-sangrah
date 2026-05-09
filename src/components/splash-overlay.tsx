@@ -14,6 +14,7 @@ import { scheduleOnRN } from "react-native-worklets";
 import { Spacing, Typography } from "@/src/constants";
 import { useTheme } from "@/src/hooks";
 
+import { AnimatedHomeMandala } from "./animated-home-mandala";
 import { AppText } from "./app-text";
 
 interface SplashOverlayProps {
@@ -66,6 +67,20 @@ export function SplashOverlay({ onFinished }: SplashOverlayProps) {
         end={{ x: 0, y: 0 }}
         style={styles.bottomGradient}
         pointerEvents="none"
+      />
+
+      {/* Mandala decorations */}
+      <AnimatedHomeMandala
+        color={colors.primary}
+        size={320}
+        opacity={0.07}
+        style={{ position: "absolute", right: -80, top: -60 }}
+      />
+      <AnimatedHomeMandala
+        color={colors.primary}
+        size={260}
+        opacity={0.05}
+        style={{ position: "absolute", left: -60, bottom: 80 }}
       />
 
       {/* Spacer for Top */}

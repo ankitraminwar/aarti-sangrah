@@ -62,6 +62,17 @@ const translations = {
   "tab.favorites": { hi: "पसंदीदा", mr: "आवडते", en: "Favorites" },
   "tab.settings": { hi: "सेटिंग्स", mr: "सेटिंग्ज", en: "Settings" },
 
+  // ── Greetings ─────────────────────────────────────────────────────
+  "greeting.morning": { hi: "सुप्रभात", mr: "शुभ सकाळ", en: "Good Morning" },
+  "greeting.afternoon": { hi: "नमस्कार", mr: "शुभ दुपार", en: "Good Afternoon" },
+  "greeting.evening": { hi: "शुभ संध्या", mr: "शुभ संध्याकाळ", en: "Good Evening" },
+
+  // ── Common Actions & Errors ───────────────────────────────────────
+  "common.retry": { hi: "पुनः प्रयास करें", mr: "पुन्हा प्रयत्न करा", en: "Retry" },
+  "common.error": { hi: "कुछ गलत हो गया", mr: "काहीतरी चूक झाली", en: "Something went wrong" },
+  "common.success": { hi: "सफलतापूर्वक हो गया", mr: "यशस्वी झाले", en: "Successfully completed" },
+  "common.loading": { hi: "प्रतीक्षा करें...", mr: "प्रतीक्षा करा...", en: "Please wait..." },
+
   // ── Home Screen ───────────────────────────────────────────────────
   "home.badge": { hi: "ॐ आरती संग्रह", mr: "ॐ आरती संग्रह", en: "ॐ Aarti Sangrah" },
   "home.headline": {

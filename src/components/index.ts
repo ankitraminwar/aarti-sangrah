@@ -1,12 +1,14 @@
 export { AartiCard } from "./aarti-card";
+export { AnimatedHomeMandala } from "./animated-home-mandala";
 export { AppButton } from "./app-button";
 export { AppModal } from "./app-modal";
 export { AppText } from "./app-text";
+export { AppTourOverlay } from "./app-tour-overlay";
 export { CategoryCard } from "./category-card";
 export { DataSyncOverlay } from "./data-sync-overlay";
 export { EmptyState } from "./empty-state";
 export { LoadingView } from "./loading-view";
+export { MandalaDecoration } from "./mandala-decoration";
 export { SearchBar } from "./search-bar";
 export { SectionHeader } from "./section-header";
 export { SplashOverlay } from "./splash-overlay";
-export { AppTourOverlay } from "./app-tour-overlay";
