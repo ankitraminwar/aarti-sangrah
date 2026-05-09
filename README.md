@@ -10,7 +10,7 @@ An offline-first mobile app for Hindu devotional hymns (aartis), built with Expo
 - **Share & Copy** — Share aartis as beautifully styled images or copy to clipboard
 - **Customizable** — Light/dark theme, adjustable text size
 - **Daily Aarti** — Featured aarti on the home screen each day
-- **Daily Notifications** — Optional devotional reminders at 4 times a day (user-controlled, localized)
+- **Smart Notifications** — Tag-driven devotional reminders: 4 fixed daily slots + day-specific weekly nudges (e.g. Hanuman Chalisa on Tuesday, Santoshi Mata on Friday) with content-type awareness (aarti / mantra / shlok / stotra); fully localized, user-controlled
 - **Full-Text Search** — FTS5-powered search by name, deity, lyrics, or tags
 - **Categories** — Browse by deity or occasion
 - **Smooth Animations** — All animations run on the UI thread via react-native-reanimated
@@ -87,7 +87,7 @@ See [AGENT.md](AGENT.md) for detailed architecture documentation.
 - **Favorites** loaded once at app startup — screens subscribe via Zustand, no redundant fetches
 - **Animations** use `react-native-reanimated` (UI thread) — never the old `Animated` from react-native
 - **Share card** content deduplicated via `renderShareCard()` helper (share + copy use the same JSX)
-- **Notifications** are user-controlled — never requested silently on startup; re-scheduled automatically when language changes
+- **Notifications** are user-controlled — never requested silently on startup; re-scheduled automatically when language changes. The scheduler reads `tags` from the local SQLite DB to fire day-of-week alerts for aartis tagged `"tuesday"`, `"friday"`, etc., and uses the `type` field to display the correct content label (aarti / mantra / श्लोक / stotra) in all three languages
 - **Fonts** limited to 4 loaded weights (NotoSerif 400/700 + PlusJakartaSans 400/500/600/700) — all Typography tokens map to these
 
 ## License
