@@ -20,8 +20,9 @@ function prettifyType(type: string, language: AppLanguage): string {
     if (t === "chalisa") return "Chalisa";
     if (t === "stotra" || t === "stotram") return "Stotra";
     if (t === "stuti") return "Stuti";
+    if (t === "ashtak") return "Ashtakam";
     if (t === "shlok" || t === "shloka") return "Shloka";
-    if (t === "prarthana") return "Prayer";
+    if (t === "prayer" || t === "prarthana") return "Prayer";
     if (!t) return "Aarti";
     return t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   }
@@ -31,8 +32,9 @@ function prettifyType(type: string, language: AppLanguage): string {
     if (t === "chalisa") return "चाळीसा";
     if (t === "stotra" || t === "stotram") return "स्तोत्र";
     if (t === "stuti") return "स्तुती";
+    if (t === "ashtak") return "अष्टक";
     if (t === "shlok" || t === "shloka") return "श्लोक";
-    if (t === "prarthana") return "प्रार्थना";
+    if (t === "prayer" || t === "prarthana") return "प्रार्थना";
     return "आरती";
   }
 
@@ -41,8 +43,9 @@ function prettifyType(type: string, language: AppLanguage): string {
   if (t === "chalisa") return "चालीसा";
   if (t === "stotra" || t === "stotram") return "स्तोत्र";
   if (t === "stuti") return "स्तुति";
+  if (t === "ashtak") return "अष्टक";
   if (t === "shlok" || t === "shloka") return "श्लोक";
-  if (t === "prarthana") return "प्रार्थना";
+  if (t === "prayer" || t === "prarthana") return "प्रार्थना";
   return "आरती";
 }
 

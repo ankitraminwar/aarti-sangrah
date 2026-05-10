@@ -10,11 +10,11 @@ import { APP_VERSION, PLAY_STORE_URL, Radius, Spacing, THINKERCART_URL } from "@
 import { useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import {
-  cancelAllNotifications,
-  fetchAndSyncAartis,
-  getLastSyncTime,
-  requestNotificationPermission,
-  scheduleAllNotifications,
+    cancelAllNotifications,
+    fetchAndSyncAartis,
+    getLastSyncTime,
+    requestNotificationPermission,
+    scheduleAllNotifications,
 } from "@/src/services";
 import { useAppStore } from "@/src/store";
 import type { AppLanguage, FontSizeLevel, ThemeMode } from "@/src/types";
@@ -120,6 +120,9 @@ export function SettingsScreen() {
       ]);
       const ts = await getLastSyncTime();
       if (ts) setLastSync(new Date(ts).toLocaleString());
+      if (notificationsEnabled) {
+        scheduleAllNotifications(language).catch(() => {});
+      }
       setModalTitle(t("settings.syncSuccess"));
       setModalMessage(t("settings.syncSuccessMsg"));
       setModalVisible(true);
@@ -130,7 +133,7 @@ export function SettingsScreen() {
     } finally {
       setSyncing(false);
     }
-  }, [t, queryClient]);
+  }, [t, queryClient, notificationsEnabled, language]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>

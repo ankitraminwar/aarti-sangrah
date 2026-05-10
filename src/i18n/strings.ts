@@ -480,9 +480,9 @@ const translations = {
     en: "We may update this privacy policy from time to time. Any changes will be reflected in the app. Continued use of the app after updates constitutes acceptance of the revised policy.",
   },
   "privacy.lastUpdated": {
-    hi: "अंतिम अपडेट: अप्रैल 2026",
-    mr: "शेवटचे अपडेट: एप्रिल 2026",
-    en: "Last updated: April 2026",
+    hi: "अंतिम अपडेट: मई 2026",
+    mr: "शेवटचे अपडेट: मे 2026",
+    en: "Last updated: May 2026",
   },
 
   // ── Detail Screen — share card download link ──────────────────────

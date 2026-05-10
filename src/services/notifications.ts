@@ -90,8 +90,9 @@ function getTypeLabel(type: string, lang: Lang): string {
     if (t === "chalisa") return "chalisa";
     if (t === "stotra" || t === "stotram") return "stotra";
     if (t === "stuti") return "stuti";
+    if (t === "ashtak") return "ashtakam";
     if (t === "shlok" || t === "shloka") return "shloka";
-    if (t === "prarthana") return "prayer";
+    if (t === "prayer" || t === "prarthana") return "prayer";
     return "aarti";
   }
   if (lang === "mr") {
@@ -99,8 +100,9 @@ function getTypeLabel(type: string, lang: Lang): string {
     if (t === "chalisa") return "चाळीसा";
     if (t === "stotra" || t === "stotram") return "स्तोत्र";
     if (t === "stuti") return "स्तुती";
+    if (t === "ashtak") return "अष्टक";
     if (t === "shlok" || t === "shloka") return "श्लोक";
-    if (t === "prarthana") return "प्रार्थना";
+    if (t === "prayer" || t === "prarthana") return "प्रार्थना";
     return "आरती";
   }
   // hi (default)
@@ -108,8 +110,9 @@ function getTypeLabel(type: string, lang: Lang): string {
   if (t === "chalisa") return "चालीसा";
   if (t === "stotra" || t === "stotram") return "स्तोत्र";
   if (t === "stuti") return "स्तुति";
+  if (t === "ashtak") return "अष्टक";
   if (t === "shlok" || t === "shloka") return "श्लोक";
-  if (t === "prarthana") return "प्रार्थना";
+  if (t === "prayer" || t === "prarthana") return "प्रार्थना";
   return "आरती";
 }
 
