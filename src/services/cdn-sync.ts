@@ -25,14 +25,14 @@ function normalizeCdnAarti(raw: CdnAarti): Aarti {
     content: contentLines.join("\n").trim(),
     description: raw.subtitle ?? "",
     order: raw.order,
-    tags: JSON.stringify(raw.tags),
+    tags: JSON.stringify(raw.tags ?? []),
     isFeatured: raw.isPopular,
     updatedAt: new Date().toISOString(),
     author: raw.author ?? "",
     type: raw.type,
     searchableText: raw.searchableText,
-    versesJson: JSON.stringify(raw.verses),
-    translationsJson: JSON.stringify(raw.translations),
+    versesJson: JSON.stringify(raw.verses ?? []),
+    translationsJson: JSON.stringify(raw.translations ?? {}),
   };
 }
 
@@ -56,8 +56,11 @@ function extractItems(data: unknown): CdnAarti[] {
 }
 
 async function fetchCollection(url: string): Promise<CdnAarti[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
   try {
     const response = await fetch(`${url}?_t=${Date.now()}`, {
+      signal: controller.signal,
       headers: {
         "Cache-Control": "no-cache, no-store, must-revalidate",
         Pragma: "no-cache",
@@ -68,6 +71,8 @@ async function fetchCollection(url: string): Promise<CdnAarti[]> {
     return extractItems(data);
   } catch {
     return [];
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

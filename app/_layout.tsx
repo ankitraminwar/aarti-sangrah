@@ -83,6 +83,7 @@ export default function RootLayout() {
   const [dbReady, setDbReady] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
   const { hasSeenTour, setHasSeenTour } = useAppStore();
+  const isSyncingRef = React.useRef(false);
 
   const [serifLoaded] = useNotoSerif({
     NotoSerif_400Regular,
@@ -105,6 +106,10 @@ export default function RootLayout() {
       )
       .then(() => {
         setDbReady(true);
+      })
+      .catch(() => {
+        // DB init failed (e.g. storage full) — unblock UI so user sees the app
+        setDbReady(true);
       });
   }, []);
 
@@ -118,21 +123,24 @@ export default function RootLayout() {
   // Auto-sync when app returns to foreground after 24h staleness
   useEffect(() => {
     const subscription = AppState.addEventListener("change", async (state) => {
-      if (state === "active") {
-        try {
-          const shouldSync = await needsSync();
-          if (shouldSync) {
-            await fetchAndSyncAartis();
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
-              queryClient.invalidateQueries({ queryKey: ["categories"] }),
-              queryClient.invalidateQueries({ queryKey: ["featured"] }),
-              queryClient.invalidateQueries({ queryKey: ["recents"] }),
-            ]);
-          }
-        } catch {
-          // silent - offline mode
+      if (state !== "active") return;
+      if (isSyncingRef.current) return; // prevent concurrent syncs
+      isSyncingRef.current = true;
+      try {
+        const shouldSync = await needsSync();
+        if (shouldSync) {
+          await fetchAndSyncAartis();
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
+            queryClient.invalidateQueries({ queryKey: ["categories"] }),
+            queryClient.invalidateQueries({ queryKey: ["featured"] }),
+            queryClient.invalidateQueries({ queryKey: ["recents"] }),
+          ]);
         }
+      } catch {
+        // silent - offline mode
+      } finally {
+        isSyncingRef.current = false;
       }
     });
     return () => subscription.remove();

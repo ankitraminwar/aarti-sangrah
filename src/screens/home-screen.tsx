@@ -67,6 +67,7 @@ export function HomeScreen() {
       }
       return true;
     },
+    enabled: !isLoading,
     staleTime: Infinity,
   });
 

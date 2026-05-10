@@ -87,14 +87,22 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
   }
 
   // Migration: normalise old category names to canonical keys via CATEGORY_ALIAS_MAP
-  // (e.g. "Shiv" → "Mahadev"). Only runs when stale rows are detected.
-  for (const [alias, canonical] of Object.entries(CATEGORY_ALIAS_MAP)) {
-    if (alias !== canonical) {
-      await database.runAsync(`UPDATE aartis SET category = ? WHERE category = ?`, [
-        canonical,
-        alias,
-      ]);
+  // (e.g. "Shiv" → "Mahadev"). Guarded by a sync_meta key so it only runs once.
+  const aliasesNormalized = await database.getFirstAsync<{ value: string }>(
+    "SELECT value FROM sync_meta WHERE key = 'aliases_v1'",
+  );
+  if (!aliasesNormalized) {
+    for (const [alias, canonical] of Object.entries(CATEGORY_ALIAS_MAP)) {
+      if (alias !== canonical) {
+        await database.runAsync(`UPDATE aartis SET category = ? WHERE category = ?`, [
+          canonical,
+          alias,
+        ]);
+      }
     }
+    await database.runAsync(
+      "INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('aliases_v1', 'true')",
+    );
   }
 
   // FTS5 Initialization
