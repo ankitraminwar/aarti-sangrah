@@ -1,5 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Linking, Pressable, ScrollView, Share, StyleSheet, View } from "react-native";
@@ -7,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AnimatedHomeMandala, AppModal, AppText } from "@/src/components";
 import { APP_VERSION, PLAY_STORE_URL, Radius, Spacing, THINKERCART_URL } from "@/src/constants";
-import { useT, useTheme } from "@/src/hooks";
+import { useInvalidateAllAartis, useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import {
   cancelAllNotifications,
@@ -46,7 +45,7 @@ export function SettingsScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const invalidateAllAartis = useInvalidateAllAartis();
   const {
     themeMode,
     setThemeMode,
@@ -110,12 +109,7 @@ export function SettingsScreen() {
     setSyncing(true);
     try {
       await fetchAndSyncAartis();
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
-        queryClient.invalidateQueries({ queryKey: ["categories"] }),
-        queryClient.invalidateQueries({ queryKey: ["featured"] }),
-        queryClient.invalidateQueries({ queryKey: ["recents"] }),
-      ]);
+      await invalidateAllAartis();
       const ts = await getLastSyncTime();
       if (ts) setLastSync(new Date(ts).toLocaleString());
       if (notificationsEnabled) {
@@ -131,7 +125,7 @@ export function SettingsScreen() {
     } finally {
       setSyncing(false);
     }
-  }, [t, queryClient, notificationsEnabled, language]);
+  }, [t, invalidateAllAartis, notificationsEnabled, language]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>

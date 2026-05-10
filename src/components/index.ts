@@ -1,4 +1,5 @@
 export { AartiCard } from "./aarti-card";
+export { AartiList } from "./aarti-list";
 export { AnimatedHomeMandala } from "./animated-home-mandala";
 export { AppButton } from "./app-button";
 export { AppModal } from "./app-modal";

@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   chorusBadge: {
     alignSelf: "flex-start",
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
     marginBottom: Spacing.xs,

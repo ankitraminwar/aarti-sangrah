@@ -95,11 +95,11 @@ export function AartiCard({
         ]}
       >
         <View style={styles.compactContent}>
-          <AppText variant="titleSm" numberOfLines={1}>
+          <AppText variant="titleSm" numberOfLines={2}>
             {localizedTitle}
           </AppText>
-          <AppText variant="labelSm" color={colors.onSurfaceVariant}>
-            {localizedCategory} • {aarti.language.toUpperCase()}
+          <AppText variant="labelSm" color={colors.onSurfaceVariant} style={styles.categoryLabel}>
+            {localizedCategory} • {aarti?.language?.toUpperCase()}
           </AppText>
         </View>
         {onToggleFavorite && (
@@ -131,7 +131,7 @@ export function AartiCard({
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <View style={[styles.categoryBadge, { backgroundColor: colors.surfaceContainer }]}>
-            <AppText variant="labelSm" color={colors.primary}>
+            <AppText variant="labelSm" color={colors.primary} style={styles.categoryLabel}>
               {localizedCategory}
             </AppText>
           </View>
@@ -179,9 +179,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   categoryBadge: {
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
+    flexShrink: 0,
   },
   titleText: {
     marginTop: Spacing.xs,
@@ -216,5 +217,8 @@ const styles = StyleSheet.create({
   compactContent: {
     flex: 1,
     gap: Spacing.xs,
+  },
+  categoryLabel: {
+    fontFamily: "NotoSerif_700Bold",
   },
 });

@@ -45,7 +45,7 @@ export function CategoryCard({ name, count, translationsJson, onPress }: Categor
       >
         <MaterialIcons name={iconName} size={28} color={colors.primary} />
       </View>
-      <AppText variant="titleMd" numberOfLines={1}>
+      <AppText variant="titleMd" numberOfLines={2}>
         {displayName}
       </AppText>
       <AppText variant="labelSm" color={colors.onSurfaceVariant}>

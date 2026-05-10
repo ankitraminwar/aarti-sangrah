@@ -16,7 +16,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
-import { AppState } from "react-native";
+import { AppState, View } from "react-native";
 import "react-native-reanimated";
 
 import { AppTourOverlay, SplashOverlay } from "@/src/components";
@@ -67,7 +67,13 @@ function RootNavigator() {
 
   return (
     <ThemeProvider value={navTheme}>
-      <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "fade",
+          contentStyle: { backgroundColor: colors.surface },
+        }}
+      >
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="aarti/[id]" options={{ animation: "slide_from_bottom" }} />
         <Stack.Screen name="category/[name]" />
@@ -150,16 +156,20 @@ export default function RootLayout() {
     setSplashDone(true);
   }, []);
 
+  const { colors } = useTheme();
+
   // Show nothing while fonts are still loading
   if (!serifLoaded || !jakartaLoaded) {
     return null;
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootNavigator />
-      {dbReady && !hasSeenTour && <AppTourOverlay onFinished={() => setHasSeenTour(true)} />}
-      {(!splashDone || !dbReady) && <SplashOverlay onFinished={handleSplashFinished} />}
-    </QueryClientProvider>
+    <View style={{ flex: 1, backgroundColor: colors.surface }}>
+      <QueryClientProvider client={queryClient}>
+        <RootNavigator />
+        {dbReady && !hasSeenTour && <AppTourOverlay onFinished={() => setHasSeenTour(true)} />}
+        {(!splashDone || !dbReady) && <SplashOverlay onFinished={handleSplashFinished} />}
+      </QueryClientProvider>
+    </View>
   );
 }

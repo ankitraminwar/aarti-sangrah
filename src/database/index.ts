@@ -105,6 +105,18 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
     );
   }
 
+  // Migration: normalise type field to lowercase (API now sends some types with
+  // a capital first character e.g. "Ashtak", "Prayer", "Stotra", "Stuti").
+  const typesNormalized = await database.getFirstAsync<{ value: string }>(
+    "SELECT value FROM sync_meta WHERE key = 'types_lowercase_v1'",
+  );
+  if (!typesNormalized) {
+    await database.runAsync("UPDATE aartis SET type = LOWER(type)");
+    await database.runAsync(
+      "INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('types_lowercase_v1', 'true')",
+    );
+  }
+
   // FTS5 Initialization
   try {
     await database.execAsync(`

@@ -29,7 +29,7 @@ function normalizeCdnAarti(raw: CdnAarti): Aarti {
     isFeatured: raw.isPopular,
     updatedAt: new Date().toISOString(),
     author: raw.author ?? "",
-    type: raw.type,
+    type: raw.type.toLowerCase(),
     searchableText: raw.searchableText,
     versesJson: JSON.stringify(raw.verses ?? []),
     translationsJson: JSON.stringify(raw.translations ?? {}),

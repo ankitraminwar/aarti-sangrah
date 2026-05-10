@@ -535,6 +535,16 @@ const translations = {
     mr: "सूचना परवानगी नाकारली गेली. कृपया डिव्हाइस सेटिंग्जमध्ये परवानगी द्या.",
     en: "Notification permission denied. Please enable it in device settings.",
   },
+
+  // ── Devotional Type Labels ────────────────────────────────────────
+  "type.aarti": { hi: "आरती", mr: "आरती", en: "Aarti" },
+  "type.mantra": { hi: "मंत्र", mr: "मंत्र", en: "Mantra" },
+  "type.chalisa": { hi: "चालीसा", mr: "चाळीसा", en: "Chalisa" },
+  "type.stotra": { hi: "स्तोत्र", mr: "स्तोत्र", en: "Stotra" },
+  "type.stuti": { hi: "स्तुति", mr: "स्तुती", en: "Stuti" },
+  "type.ashtak": { hi: "अष्टक", mr: "अष्टक", en: "Ashtakam" },
+  "type.shlok": { hi: "श्लोक", mr: "श्लोक", en: "Shloka" },
+  "type.prayer": { hi: "प्रार्थना", mr: "प्रार्थना", en: "Prayer" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

@@ -1,17 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AartiCard, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
+import { AartiList, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
 import { Radius, Spacing } from "@/src/constants";
 import { getAllAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
-import { useAppStore, useFavoritesStore } from "@/src/store";
-import type { Aarti } from "@/src/types";
+import { useAppStore } from "@/src/store";
 import { getLocalizedType } from "@/src/utils";
 
 interface TypeOption {
@@ -23,10 +21,8 @@ interface TypeOption {
 export function CollectionsScreen() {
   const { colors } = useTheme();
   const t = useT();
-  const router = useRouter();
   const language = useAppStore((s) => s.language);
-  const { favoriteIds, toggleFavorite } = useFavoritesStore();
-  const [selectedType, setSelectedType] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string | null>(null);
 
   const { data: allAartis = [], isLoading } = useQuery({
     queryKey: ["allAartis"],
@@ -138,23 +134,7 @@ export function CollectionsScreen() {
       </View>
 
       {selectedType ? (
-        <FlashList
-          data={filtered}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }: { item: Aarti }) => (
-            <View style={styles.cardWrapper}>
-              <AartiCard
-                aarti={item}
-                variant="compact"
-                onPress={() => router.push(`/aarti/${item.id}`)}
-                isFavorite={favoriteIds.has(item.id)}
-                onToggleFavorite={() => toggleFavorite(item.id)}
-              />
-            </View>
-          )}
-        />
+        <AartiList data={filtered} variant="compact" />
       ) : (
         <View style={styles.emptySelection}>
           <AppText variant="bodyMd" color={colors.onSurfaceVariant}>
@@ -189,9 +169,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.xs,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
+    flexShrink: 0,
   },
   typeList: {
     paddingTop: Spacing.lg,
@@ -204,16 +185,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     minWidth: 120,
     gap: 2,
-  },
-  list: {
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.huge,
-  },
-  cardWrapper: {
-    paddingVertical: Spacing.xs,
-  },
-  separator: {
-    height: Spacing.sm,
   },
   emptySelection: {
     paddingHorizontal: Spacing.xl,

@@ -1,5 +1,23 @@
+import { t } from "@/src/i18n";
 import type { Aarti, AppLanguage } from "@/src/types";
 import { CATEGORY_REGISTRY } from "@/src/types";
+
+function normalizeCategoryKey(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function resolveCanonicalCategoryKey(value: string): string | undefined {
+  if (CATEGORY_REGISTRY[value]) return value;
+  const normalized = normalizeCategoryKey(value);
+  for (const [key, rec] of Object.entries(CATEGORY_REGISTRY)) {
+    if (normalizeCategoryKey(key) === normalized) return key;
+    if (normalizeCategoryKey(rec.en) === normalized) return key;
+    if (normalizeCategoryKey(rec.hi) === normalized) return key;
+    if (normalizeCategoryKey(rec.mr) === normalized) return key;
+    if (rec.aliases.some((alias) => normalizeCategoryKey(alias) === normalized)) return key;
+  }
+  return undefined;
+}
 
 export function getLocalizedTitle(aarti: Aarti, language: AppLanguage): string {
   if (!aarti.translationsJson || aarti.translationsJson === "{}") {
@@ -14,39 +32,19 @@ export function getLocalizedTitle(aarti: Aarti, language: AppLanguage): string {
 }
 
 export function prettifyType(type: string, language: AppLanguage): string {
-  const t = type.toLowerCase();
-  if (language === "en") {
-    if (t === "mantra") return "Mantra";
-    if (t === "chalisa") return "Chalisa";
-    if (t === "stotra" || t === "stotram") return "Stotra";
-    if (t === "stuti") return "Stuti";
-    if (t === "ashtak") return "Ashtakam";
-    if (t === "shlok" || t === "shloka") return "Shloka";
-    if (t === "prayer" || t === "prarthana") return "Prayer";
-    if (!t) return "Aarti";
-    return t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  }
+  const lower = type.toLowerCase();
+  const titleCase = lower.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-  if (language === "mr") {
-    if (t === "mantra") return "मंत्र";
-    if (t === "chalisa") return "चाळीसा";
-    if (t === "stotra" || t === "stotram") return "स्तोत्र";
-    if (t === "stuti") return "स्तुती";
-    if (t === "ashtak") return "अष्टक";
-    if (t === "shlok" || t === "shloka") return "श्लोक";
-    if (t === "prayer" || t === "prarthana") return "प्रार्थना";
-    return "आरती";
-  }
-
-  // hi
-  if (t === "mantra") return "मंत्र";
-  if (t === "chalisa") return "चालीसा";
-  if (t === "stotra" || t === "stotram") return "स्तोत्र";
-  if (t === "stuti") return "स्तुति";
-  if (t === "ashtak") return "अष्टक";
-  if (t === "shlok" || t === "shloka") return "श्लोक";
-  if (t === "prayer" || t === "prarthana") return "प्रार्थना";
-  return "आरती";
+  if (lower === "aarti") return t("type.aarti", language);
+  if (lower === "mantra") return t("type.mantra", language);
+  if (lower === "chalisa") return t("type.chalisa", language);
+  if (lower === "stotra" || lower === "stotram") return t("type.stotra", language);
+  if (lower === "stuti") return t("type.stuti", language);
+  if (lower === "ashtak") return t("type.ashtak", language);
+  if (lower === "shlok" || lower === "shloka") return t("type.shlok", language);
+  if (lower === "prayer" || lower === "prarthana") return t("type.prayer", language);
+  // Unknown type: return title-cased raw value so it's readable in any language
+  return titleCase;
 }
 
 export function getLocalizedType(aarti: Aarti, language: AppLanguage): string {
@@ -69,8 +67,10 @@ export function getLocalizedCategory(
   fallback: string,
   language: AppLanguage,
 ): string {
-  // Tier 1: CATEGORY_REGISTRY — covers all known categories, always current
-  const record = CATEGORY_REGISTRY[fallback];
+  // Tier 1: CATEGORY_REGISTRY — covers all known categories, always current.
+  // Also resolves common non-canonical inputs (e.g. "Shri Ram" -> "Ram").
+  const canonicalKey = resolveCanonicalCategoryKey(fallback);
+  const record = canonicalKey ? CATEGORY_REGISTRY[canonicalKey] : undefined;
   if (record) return record[language] ?? fallback;
 
   // Tier 2: translationsJson from the aarti row — handles NEW categories added
@@ -79,7 +79,13 @@ export function getLocalizedCategory(
     try {
       const t = JSON.parse(translationsJson) as Record<string, { category?: string }>;
       const translated = t[language]?.category;
-      if (translated) return translated;
+      if (translated) {
+        const translatedCanonicalKey = resolveCanonicalCategoryKey(translated);
+        if (translatedCanonicalKey) {
+          return CATEGORY_REGISTRY[translatedCanonicalKey][language] ?? translated;
+        }
+        return translated;
+      }
     } catch {
       // malformed JSON — fall through
     }

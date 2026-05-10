@@ -36,6 +36,7 @@ export default function CategoryRoute() {
           headerStyle: { backgroundColor: colors.surface },
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: "NotoSerif_700Bold" },
+          contentStyle: { backgroundColor: colors.surface },
         }}
       />
       <CategoryScreen />
