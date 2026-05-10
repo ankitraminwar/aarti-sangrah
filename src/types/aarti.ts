@@ -155,14 +155,14 @@ export const CATEGORY_REGISTRY: Readonly<Record<string, CategoryRecord>> = {
     hi: "श्री कृष्ण",
     mr: "श्री कृष्ण",
     en: "Shri Krishna",
-    aliases: ["Krishna", "Govind", "Kanha"],
+    aliases: ["Krishna", "Govind", "Kanha", "Shri Krishna"],
   },
   Ram: {
     icon: "military-tech",
     hi: "श्री राम",
     mr: "श्री राम",
     en: "Shri Ram",
-    aliases: ["Ram", "Rama"],
+    aliases: ["Ram", "Rama", "Shri Ram"],
   },
   Datt: {
     icon: "wb-sunny",
@@ -176,14 +176,14 @@ export const CATEGORY_REGISTRY: Readonly<Record<string, CategoryRecord>> = {
     hi: "श्री विष्णु",
     mr: "श्री विष्णु",
     en: "Shri Vishnu",
-    aliases: ["Vishnu", "Narayan"],
+    aliases: ["Vishnu", "Narayan", "Shri Vishnu"],
   },
   Lakshmi: {
     icon: "stars",
     hi: "श्री लक्ष्मी",
     mr: "श्री लक्ष्मी",
     en: "Shri Lakshmi",
-    aliases: ["Lakshmi", "Laxmi"],
+    aliases: ["Lakshmi", "Laxmi", "Shri Lakshmi"],
   },
   Saraswati: {
     icon: "auto-stories",

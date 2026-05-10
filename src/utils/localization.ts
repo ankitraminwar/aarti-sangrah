@@ -77,8 +77,8 @@ export function getLocalizedCategory(
   //         to the API before the registry is updated (zero-breakage guarantee)
   if (translationsJson && translationsJson !== "{}") {
     try {
-      const t = JSON.parse(translationsJson) as Record<string, { category?: string }>;
-      const translated = t[language]?.category;
+      const translations = JSON.parse(translationsJson) as Record<string, { category?: string }>;
+      const translated = translations[language]?.category;
       if (translated) {
         const translatedCanonicalKey = resolveCanonicalCategoryKey(translated);
         if (translatedCanonicalKey) {

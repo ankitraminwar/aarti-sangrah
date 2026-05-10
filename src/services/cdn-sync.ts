@@ -13,8 +13,10 @@ function normalizeCdnAarti(raw: CdnAarti): Aarti {
     contentLines.push("");
   }
 
-  // Normalise category to canonical name (e.g. "Shiv" → "Mahadev")
-  const canonicalCategory = CATEGORY_ALIAS_MAP[raw.category] ?? raw.category;
+  // Normalise category to canonical name (e.g. "Shiv" → "Mahadev").
+  // Trim whitespace first so leading/trailing spaces don't prevent a match.
+  const trimmedCategory = raw.category.trim();
+  const canonicalCategory = CATEGORY_ALIAS_MAP[trimmedCategory] ?? trimmedCategory;
 
   return {
     id: raw.id,

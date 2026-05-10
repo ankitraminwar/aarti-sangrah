@@ -58,16 +58,22 @@ export function CollectionsScreen() {
   );
 
   if (isLoading && allAartis.length === 0) {
-    return <LoadingView message={t("generic.loading")} />;
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
+        <LoadingView message={t("generic.loading")} />
+      </SafeAreaView>
+    );
   }
 
   if (typeOptions.length === 0) {
     return (
-      <EmptyState
-        icon="collections-bookmark"
-        title={t("collections.emptyTitle")}
-        message={t("collections.emptyMsg")}
-      />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
+        <EmptyState
+          icon="collections-bookmark"
+          title={t("collections.emptyTitle")}
+          message={t("collections.emptyMsg")}
+        />
+      </SafeAreaView>
     );
   }
 
