@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AartiCard, AppText, EmptyState, LoadingView, MandalaDecoration } from "@/src/components";
+import { AartiCard, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getAartisByCategory } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
@@ -43,7 +43,7 @@ export function CategoryScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={styles.header}>
-        <MandalaDecoration
+        <AnimatedHomeMandala
           color={colors.primary}
           size={220}
           opacity={0.08}

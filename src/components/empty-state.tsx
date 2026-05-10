@@ -3,6 +3,7 @@ import { useTheme } from "@/src/hooks";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+import { AnimatedHomeMandala } from "./animated-home-mandala";
 import { AppButton } from "./app-button";
 import { AppText } from "./app-text";
 
@@ -25,6 +26,12 @@ export function EmptyState({
 
   return (
     <View style={styles.container}>
+      <AnimatedHomeMandala
+        color={colors.primary}
+        size={200}
+        opacity={0.04}
+        style={{ position: "absolute", alignSelf: "center", top: "50%", marginTop: -100 }}
+      />
       <MaterialIcons name={icon} size={64} color={colors.outlineVariant} />
       <AppText variant="headlineSm" style={styles.title}>
         {title}

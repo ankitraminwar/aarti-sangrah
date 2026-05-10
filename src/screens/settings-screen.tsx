@@ -5,16 +5,16 @@ import React, { useCallback, useState } from "react";
 import { Linking, Pressable, ScrollView, Share, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AppModal, AppText, MandalaDecoration } from "@/src/components";
+import { AnimatedHomeMandala, AppModal, AppText } from "@/src/components";
 import { APP_VERSION, PLAY_STORE_URL, Radius, Spacing, THINKERCART_URL } from "@/src/constants";
 import { useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import {
-  cancelAllNotifications,
-  fetchAndSyncAartis,
-  getLastSyncTime,
-  requestNotificationPermission,
-  scheduleAllNotifications,
+    cancelAllNotifications,
+    fetchAndSyncAartis,
+    getLastSyncTime,
+    requestNotificationPermission,
+    scheduleAllNotifications,
 } from "@/src/services";
 import { useAppStore } from "@/src/store";
 import type { AppLanguage, FontSizeLevel, ThemeMode } from "@/src/types";
@@ -140,7 +140,7 @@ export function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <MandalaDecoration
+          <AnimatedHomeMandala
             color={colors.primary}
             size={260}
             opacity={0.08}

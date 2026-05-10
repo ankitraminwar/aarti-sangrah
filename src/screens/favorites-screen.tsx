@@ -5,7 +5,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AartiCard, AppText, EmptyState, LoadingView, MandalaDecoration } from "@/src/components";
+import { AartiCard, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getFavoriteAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
@@ -31,7 +31,7 @@ export function FavoritesScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
         <View style={styles.headerSection}>
-          <MandalaDecoration
+          <AnimatedHomeMandala
             color={colors.primary}
             size={220}
             opacity={0.08}
@@ -53,7 +53,7 @@ export function FavoritesScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
       <View style={styles.headerSection}>
-        <MandalaDecoration
+        <AnimatedHomeMandala
           color={colors.primary}
           size={220}
           opacity={0.08}
