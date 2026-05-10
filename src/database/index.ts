@@ -94,10 +94,10 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
   if (!aliasesNormalized) {
     for (const [alias, canonical] of Object.entries(CATEGORY_ALIAS_MAP)) {
       if (alias !== canonical) {
-        await database.runAsync(`UPDATE aartis SET category = ? WHERE category = ?`, [
-          canonical,
-          alias,
-        ]);
+        await database.runAsync(`UPDATE aartis SET category = $canonical WHERE category = $alias`, {
+          $canonical: canonical,
+          $alias: alias,
+        });
       }
     }
     await database.runAsync(

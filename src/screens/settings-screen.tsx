@@ -13,7 +13,6 @@ import {
   cancelAllNotifications,
   fetchAndSyncAartis,
   getLastSyncTime,
-  requestNotificationPermission,
   scheduleAllNotifications,
 } from "@/src/services";
 import { useAppStore } from "@/src/store";
@@ -86,16 +85,9 @@ export function SettingsScreen() {
       await cancelAllNotifications();
       setNotificationsEnabled(false);
     } else {
-      const granted = await requestNotificationPermission();
-      if (granted) {
-        const scheduled = await scheduleAllNotifications(language);
-        if (scheduled) {
-          setNotificationsEnabled(true);
-        } else {
-          setModalTitle(t("settings.notifications"));
-          setModalMessage(t("settings.notifPermissionDenied"));
-          setModalVisible(true);
-        }
+      const scheduled = await scheduleAllNotifications(language);
+      if (scheduled) {
+        setNotificationsEnabled(true);
       } else {
         setModalTitle(t("settings.notifications"));
         setModalMessage(t("settings.notifPermissionDenied"));

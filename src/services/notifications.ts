@@ -1,4 +1,5 @@
 import { getAllAartis } from "@/src/database";
+import { prettifyType } from "@/src/utils";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
@@ -82,40 +83,6 @@ const RANDOM_CONTENT: Record<Lang, { title: string; body: string }> = {
   },
 };
 
-/** Maps the `type` field from the CDN data to a short localized word. */
-function getTypeLabel(type: string, lang: Lang): string {
-  const t = type.toLowerCase();
-  if (lang === "en") {
-    if (t === "mantra") return "mantra";
-    if (t === "chalisa") return "chalisa";
-    if (t === "stotra" || t === "stotram") return "stotra";
-    if (t === "stuti") return "stuti";
-    if (t === "ashtak") return "ashtakam";
-    if (t === "shlok" || t === "shloka") return "shloka";
-    if (t === "prayer" || t === "prarthana") return "prayer";
-    return "aarti";
-  }
-  if (lang === "mr") {
-    if (t === "mantra") return "मंत्र";
-    if (t === "chalisa") return "चाळीसा";
-    if (t === "stotra" || t === "stotram") return "स्तोत्र";
-    if (t === "stuti") return "स्तुती";
-    if (t === "ashtak") return "अष्टक";
-    if (t === "shlok" || t === "shloka") return "श्लोक";
-    if (t === "prayer" || t === "prarthana") return "प्रार्थना";
-    return "आरती";
-  }
-  // hi (default)
-  if (t === "mantra") return "मंत्र";
-  if (t === "chalisa") return "चालीसा";
-  if (t === "stotra" || t === "stotram") return "स्तोत्र";
-  if (t === "stuti") return "स्तुति";
-  if (t === "ashtak") return "अष्टक";
-  if (t === "shlok" || t === "shloka") return "श्लोक";
-  if (t === "prayer" || t === "prarthana") return "प्रार्थना";
-  return "आरती";
-}
-
 export async function requestNotificationPermission(): Promise<boolean> {
   if (Platform.OS === "web") return false;
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -169,15 +136,15 @@ export async function scheduleAllNotifications(lang: Lang = "hi"): Promise<boole
     const morningContent = morningAarti
       ? {
           hi: {
-            title: `🌅 सुप्रभात — ${getTypeLabel(morningAarti.type, "hi")}`,
+            title: `🌅 सुप्रभात — ${prettifyType(morningAarti.type, "hi")}`,
             body: `${getTitle(morningAarti)} के साथ दिन की शुरुआत करें। 🙏`,
           },
           mr: {
-            title: `🌅 सुप्रभात — ${getTypeLabel(morningAarti.type, "mr")}`,
+            title: `🌅 सुप्रभात — ${prettifyType(morningAarti.type, "mr")}`,
             body: `${getTitle(morningAarti)} सह दिवसाची सुरुवात करा. 🙏`,
           },
           en: {
-            title: `🌅 Good Morning — ${getTypeLabel(morningAarti.type, "en")}`,
+            title: `🌅 Good Morning — ${prettifyType(morningAarti.type, "en")}`,
             body: `Begin your day with ${getTitle(morningAarti)}. 🙏`,
           },
         }
@@ -228,7 +195,7 @@ export async function scheduleAllNotifications(lang: Lang = "hi"): Promise<boole
             if (scheduledDays.has(weekday)) continue;
 
             const aartiTitle = getTitle(aarti);
-            const typeLabel = getTypeLabel(aarti.type, lang);
+            const typeLabel = prettifyType(aarti.type, lang);
             const localizedBody =
               lang === "en"
                 ? `Today is an auspicious day to read this ${typeLabel}: ${aartiTitle}`

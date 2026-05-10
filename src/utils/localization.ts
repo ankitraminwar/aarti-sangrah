@@ -13,7 +13,7 @@ export function getLocalizedTitle(aarti: Aarti, language: AppLanguage): string {
   }
 }
 
-function prettifyType(type: string, language: AppLanguage): string {
+export function prettifyType(type: string, language: AppLanguage): string {
   const t = type.toLowerCase();
   if (language === "en") {
     if (t === "mantra") return "Mantra";
