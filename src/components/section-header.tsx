@@ -18,7 +18,7 @@ export function SectionHeader({ title, actionLabel, onAction }: SectionHeaderPro
     <View style={styles.container}>
       <AppText variant="headlineSm">{title}</AppText>
       {actionLabel && onAction && (
-        <Pressable onPress={onAction} hitSlop={8} style={styles.action}>
+        <Pressable onPress={onAction} hitSlop={12} style={styles.action}>
           <AppText variant="labelLg" color={colors.primary}>
             {actionLabel}
           </AppText>

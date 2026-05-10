@@ -545,6 +545,7 @@ const translations = {
   "type.ashtak": { hi: "अष्टक", mr: "अष्टक", en: "Ashtakam" },
   "type.shlok": { hi: "श्लोक", mr: "श्लोक", en: "Shloka" },
   "type.prayer": { hi: "प्रार्थना", mr: "प्रार्थना", en: "Prayer" },
+  "modal.ok": { hi: "ठीक है", mr: "ठीक आहे", en: "OK" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

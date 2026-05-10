@@ -24,18 +24,24 @@ export function CategoryScreen() {
   });
 
   if (isLoading) {
-    return <LoadingView message={t("category.loading")} />;
+    return (
+      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+        <LoadingView message={t("category.loading")} />
+      </View>
+    );
   }
 
   if (aartis.length === 0) {
     return (
-      <EmptyState
-        icon="library-music"
-        title={t("category.emptyTitle")}
-        message={t("category.emptyMsg", { name: name ?? "" })}
-        actionLabel={t("category.goHome")}
-        onAction={() => router.back()}
-      />
+      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+        <EmptyState
+          icon="library-music"
+          title={t("category.emptyTitle")}
+          message={t("category.emptyMsg", { name: name ?? "" })}
+          actionLabel={t("category.goHome")}
+          onAction={() => router.back()}
+        />
+      </View>
     );
   }
 

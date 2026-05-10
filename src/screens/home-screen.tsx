@@ -17,6 +17,7 @@ import {
 import { Spacing } from "@/src/constants";
 import { getAllAartis, getCategories, getFeaturedAartis, getRecentAartis } from "@/src/database";
 import { useInvalidateAllAartis, useT, useTheme } from "@/src/hooks";
+import type { TranslationKey } from "@/src/i18n";
 import { fetchAndSyncAartis, needsSync } from "@/src/services";
 import { useFavoritesStore } from "@/src/store";
 
@@ -66,11 +67,14 @@ export function HomeScreen() {
     staleTime: Infinity,
   });
 
-  const getGreetingConfig = () => {
+  const getGreetingConfig = (): {
+    key: TranslationKey;
+    icon: keyof typeof MaterialIcons.glyphMap;
+  } => {
     const hour = new Date().getHours();
-    if (hour < 12) return { key: "greeting.morning", icon: "wb-sunny" } as const;
-    if (hour < 17) return { key: "greeting.afternoon", icon: "wb-incandescent" } as const;
-    return { key: "greeting.evening", icon: "nights-stay" } as const;
+    if (hour < 12) return { key: "greeting.morning", icon: "wb-sunny" };
+    if (hour < 17) return { key: "greeting.afternoon", icon: "wb-incandescent" };
+    return { key: "greeting.evening", icon: "nights-stay" };
   };
   const greeting = getGreetingConfig();
 
@@ -125,7 +129,7 @@ export function HomeScreen() {
             <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 }}>
               <MaterialIcons name={greeting.icon} size={16} color={colors.primary} />
               <AppText variant="labelMd" color={colors.primary}>
-                {t(greeting.key as any)} • {t("home.badge")}
+                {t(greeting.key)} • {t("home.badge")}
               </AppText>
             </View>
             <AppText variant="displayLg" style={styles.headerTitle}>

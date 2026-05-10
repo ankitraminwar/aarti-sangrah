@@ -213,7 +213,7 @@ export function AppTourOverlay({ onFinished }: AppTourOverlayProps) {
         {/* Dot pagination */}
         <View style={styles.pagination}>
           {TOUR_SLIDES.map((_, index) => (
-            <Pressable key={index} onPress={() => goToIndex(index)} hitSlop={8}>
+            <Pressable key={index} onPress={() => goToIndex(index)} hitSlop={12}>
               <View
                 style={[
                   styles.dot,
