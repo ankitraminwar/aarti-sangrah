@@ -59,6 +59,7 @@ const translations = {
   // ── Tabs ──────────────────────────────────────────────────────────
   "tab.home": { hi: "होम", mr: "होम", en: "Home" },
   "tab.search": { hi: "खोजें", mr: "शोधा", en: "Search" },
+  "tab.collections": { hi: "संग्रह", mr: "संग्रह", en: "Collections" },
   "tab.favorites": { hi: "पसंदीदा", mr: "आवडते", en: "Favorites" },
   "tab.settings": { hi: "सेटिंग्स", mr: "सेटिंग्ज", en: "Settings" },
 
@@ -225,6 +226,35 @@ const translations = {
     en: "A collection of sacred hymns",
   },
 
+  // ── Collections Screen ───────────────────────────────────────────
+  "collections.title": {
+    hi: "प्रकार अनुसार संग्रह",
+    mr: "प्रकारानुसार संग्रह",
+    en: "Collections by Type",
+  },
+  "collections.subtitle": {
+    hi: "आरती, स्तोत्र, मंत्र, चालीसा और अधिक",
+    mr: "आरती, स्तोत्र, मंत्र, चालीसा आणि अधिक",
+    en: "Aarti, Stotra, Mantra, Chalisa and more",
+  },
+  "collections.allTypes": { hi: "कुल प्रकार", mr: "एकूण प्रकार", en: "Total Types" },
+  "collections.items": { hi: "रचनाएँ", mr: "रचना", en: "Items" },
+  "collections.selectType": {
+    hi: "सूची देखने के लिए प्रकार चुनें",
+    mr: "यादी पाहण्यासाठी प्रकार निवडा",
+    en: "Select a type to browse entries",
+  },
+  "collections.emptyTitle": {
+    hi: "कोई संग्रह उपलब्ध नहीं",
+    mr: "कोणताही संग्रह उपलब्ध नाही",
+    en: "No Collections Available",
+  },
+  "collections.emptyMsg": {
+    hi: "डेटा सिंक होने के बाद सभी प्रकार यहां दिखेंगे।",
+    mr: "डेटा सिंक झाल्यानंतर सर्व प्रकार येथे दिसतील.",
+    en: "All types will appear here once data is synced.",
+  },
+
   // ── Detail Screen ─────────────────────────────────────────────────
   "detail.loading": {
     hi: "आरती लोड हो रही है...",
@@ -246,6 +276,23 @@ const translations = {
   // ── Generic ───────────────────────────────────────────────────────
   "generic.loading": { hi: "लोड हो रहा है...", mr: "लोड होत आहे...", en: "Loading..." },
   "searchBar.placeholder": { hi: "आरती खोजें...", mr: "आरती शोधा...", en: "Search aartis..." },
+
+  // ── Splash & Sync Overlays ──────────────────────────────────────
+  "dataSync.mantra": {
+    hi: "तमसो मा ज्योतिर्गमय",
+    mr: "तमसो मा ज्योतिर्गमय",
+    en: "Tamaso ma jyotirgamaya",
+  },
+  "dataSync.subtitle": {
+    hi: "मुझे अंधकार से प्रकाश की ओर ले चलो।",
+    mr: "मला अंधारातून प्रकाशाकडे घेऊन जा.",
+    en: "Lead me from darkness to light.",
+  },
+  "dataSync.progress": {
+    hi: "प्रार्थनाएँ एकत्र की जा रही हैं...",
+    mr: "प्रार्थना एकत्रित केल्या जात आहेत...",
+    en: "Gathering prayers...",
+  },
 
   // ── Help & FAQ ────────────────────────────────────────────────────
   "settings.helpFaq": { hi: "सहायता और FAQ", mr: "मदत आणि FAQ", en: "Help & FAQ" },

@@ -16,7 +16,7 @@ import { getAartiById, upsertRecent } from "@/src/database";
 import { useFontSize, useT, useTheme } from "@/src/hooks";
 import { useAppStore, useFavoritesStore } from "@/src/store";
 import type { CdnVerse } from "@/src/types";
-import { getLocalizedTitle } from "@/src/utils";
+import { getLocalizedCategory, getLocalizedTitle, getLocalizedType } from "@/src/utils";
 
 export function AartiDetailScreen() {
   const { colors } = useTheme();
@@ -251,7 +251,8 @@ export function AartiDetailScreen() {
         {/* Title section */}
         <Animated.View entering={FadeIn.duration(400)} style={styles.titleSection}>
           <AppText variant="labelMd" color={colors.primary}>
-            {aarti.category} • {aarti.type}
+            {getLocalizedCategory(aarti.translationsJson, aarti.category, language)} •{" "}
+            {getLocalizedType(aarti, language)}
           </AppText>
           <AppText
             variant="displayLg"

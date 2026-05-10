@@ -1,5 +1,6 @@
 import { DB_NAME } from "@/src/constants";
 import type { Aarti, RecentAarti } from "@/src/types";
+import { CATEGORY_ALIAS_MAP } from "@/src/types";
 import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
@@ -83,6 +84,17 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
     );
   } catch {
     // Column already exists – ignore
+  }
+
+  // Migration: normalise old category names to canonical keys via CATEGORY_ALIAS_MAP
+  // (e.g. "Shiv" → "Mahadev"). Only runs when stale rows are detected.
+  for (const [alias, canonical] of Object.entries(CATEGORY_ALIAS_MAP)) {
+    if (alias !== canonical) {
+      await database.runAsync(`UPDATE aartis SET category = ? WHERE category = ?`, [
+        canonical,
+        alias,
+      ]);
+    }
   }
 
   // FTS5 Initialization
@@ -217,10 +229,14 @@ export async function getAartiById(id: string): Promise<Aarti | null> {
   return row ? mapRowToAarti(row) : null;
 }
 
-export async function getCategories(): Promise<{ name: string; count: number }[]> {
+export async function getCategories(): Promise<
+  { name: string; count: number; translationsJson: string }[]
+> {
   const database = await getDatabase();
-  return database.getAllAsync<{ name: string; count: number }>(
-    'SELECT category as name, COUNT(*) as count FROM aartis GROUP BY category ORDER BY MIN("order") ASC',
+  return database.getAllAsync<{ name: string; count: number; translationsJson: string }>(
+    `SELECT category as name, COUNT(*) as count,
+      (SELECT translationsJson FROM aartis a2 WHERE a2.category = a.category ORDER BY a2."order" ASC LIMIT 1) as translationsJson
+     FROM aartis a GROUP BY category ORDER BY MIN("order") ASC`,
   );
 }
 

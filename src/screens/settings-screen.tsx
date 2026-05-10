@@ -10,11 +10,11 @@ import { APP_VERSION, PLAY_STORE_URL, Radius, Spacing, THINKERCART_URL } from "@
 import { useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import {
-    cancelAllNotifications,
-    fetchAndSyncAartis,
-    getLastSyncTime,
-    requestNotificationPermission,
-    scheduleAllNotifications,
+  cancelAllNotifications,
+  fetchAndSyncAartis,
+  getLastSyncTime,
+  requestNotificationPermission,
+  scheduleAllNotifications,
 } from "@/src/services";
 import { useAppStore } from "@/src/store";
 import type { AppLanguage, FontSizeLevel, ThemeMode } from "@/src/types";

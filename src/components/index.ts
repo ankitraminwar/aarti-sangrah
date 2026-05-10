@@ -12,4 +12,3 @@ export { MandalaDecoration } from "./mandala-decoration";
 export { SearchBar } from "./search-bar";
 export { SectionHeader } from "./section-header";
 export { SplashOverlay } from "./splash-overlay";
-

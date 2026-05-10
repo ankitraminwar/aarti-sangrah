@@ -8,8 +8,9 @@ import { AartiCard, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from
 import { Spacing } from "@/src/constants";
 import { getAartisByCategory } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
-import { useFavoritesStore } from "@/src/store";
+import { useAppStore, useFavoritesStore } from "@/src/store";
 import type { Aarti } from "@/src/types";
+import { getLocalizedCategory } from "@/src/utils";
 
 export function CategoryScreen() {
   const { colors } = useTheme();
@@ -17,6 +18,7 @@ export function CategoryScreen() {
   const { name } = useLocalSearchParams<{ name: string }>();
   const router = useRouter();
   const { favoriteIds, toggleFavorite } = useFavoritesStore();
+  const language = useAppStore((s) => s.language);
 
   const { data: aartis = [], isLoading } = useQuery({
     queryKey: ["category", name],
@@ -52,7 +54,9 @@ export function CategoryScreen() {
         <AppText variant="labelMd" color={colors.primary}>
           {aartis.length} {aartis.length === 1 ? t("category.hymn") : t("category.hymns")}
         </AppText>
-        <AppText variant="headlineLg">{name}</AppText>
+        <AppText variant="headlineLg">
+          {getLocalizedCategory(aartis[0]?.translationsJson ?? "{}", name ?? "", language)}
+        </AppText>
         <AppText variant="bodyMd" color={colors.onSurfaceVariant}>
           {t("category.description")}
         </AppText>

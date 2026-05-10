@@ -48,6 +48,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="collections"
+        options={{
+          title: t("tab.collections"),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="collections-bookmark" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="favorites"
         options={{
           title: t("tab.favorites"),

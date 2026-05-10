@@ -174,6 +174,7 @@ export function HomeScreen() {
               key={cat.name}
               name={cat.name}
               count={cat.count}
+              translationsJson={cat.translationsJson}
               onPress={() => router.push(`/category/${cat.name}`)}
             />
           ))}

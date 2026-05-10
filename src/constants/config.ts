@@ -1,11 +1,20 @@
-export const CDN_URL =
-  "https://cdn.jsdelivr.net/gh/ankitraminwar/aarti-api@master/aarti_collections.json";
+const CDN_BASE = "https://cdn.jsdelivr.net/gh/ankitraminwar/aarti-api@master";
+
+export const CDN_COLLECTION_URLS: readonly string[] = [
+  `${CDN_BASE}/collections/aarti_collections.json`,
+  `${CDN_BASE}/collections/ashtak_collections.json`,
+  `${CDN_BASE}/collections/chalisa_collections.json`,
+  `${CDN_BASE}/collections/mantra_collections.json`,
+  `${CDN_BASE}/collections/prayer_collections.json`,
+  `${CDN_BASE}/collections/stotra_collections.json`,
+  `${CDN_BASE}/collections/stuti_collection.json`,
+];
 
 export const DB_NAME = "aarti_sangrah.db";
 
 export const STALE_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-export const APP_VERSION = "1.0.1";
+export const APP_VERSION = "1.0.2";
 
 export const REQUEST_FORM_URL = "https://forms.gle/u9hGMXVS1XvLWnnE6";
 

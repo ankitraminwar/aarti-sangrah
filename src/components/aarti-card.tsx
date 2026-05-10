@@ -2,7 +2,7 @@ import { Radius, Spacing } from "@/src/constants";
 import { useTheme } from "@/src/hooks";
 import { useAppStore } from "@/src/store";
 import type { Aarti } from "@/src/types";
-import { getLocalizedTitle } from "@/src/utils";
+import { getLocalizedCategory, getLocalizedTitle } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -27,6 +27,7 @@ export function AartiCard({
   const { colors, isDark } = useTheme();
   const language = useAppStore((s) => s.language);
   const localizedTitle = getLocalizedTitle(aarti, language);
+  const localizedCategory = getLocalizedCategory(aarti.translationsJson, aarti.category, language);
 
   if (variant === "featured") {
     return (
@@ -48,7 +49,7 @@ export function AartiCard({
               variant="labelMd"
               color={isDark ? colors.onPrimaryContainer : colors.onPrimary}
             >
-              {aarti.category}
+              {localizedCategory}
             </AppText>
             <AppText
               variant="headlineMd"
@@ -98,7 +99,7 @@ export function AartiCard({
             {localizedTitle}
           </AppText>
           <AppText variant="labelSm" color={colors.onSurfaceVariant}>
-            {aarti.category} • {aarti.language.toUpperCase()}
+            {localizedCategory} • {aarti.language.toUpperCase()}
           </AppText>
         </View>
         {onToggleFavorite && (
@@ -131,7 +132,7 @@ export function AartiCard({
         <View style={styles.cardHeader}>
           <View style={[styles.categoryBadge, { backgroundColor: colors.surfaceContainer }]}>
             <AppText variant="labelSm" color={colors.primary}>
-              {aarti.category}
+              {localizedCategory}
             </AppText>
           </View>
           {onToggleFavorite && (
