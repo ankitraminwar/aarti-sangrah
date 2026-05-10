@@ -17,8 +17,8 @@ import type { TranslationKey } from "@/src/i18n";
 import { t } from "@/src/i18n";
 import { useAppStore } from "@/src/store";
 
+import { AnimatedHomeMandala } from "./animated-home-mandala";
 import { AppText } from "./app-text";
-import { MandalaDecoration } from "./mandala-decoration";
 
 interface AppTourOverlayProps {
   onFinished: () => void;
@@ -164,13 +164,13 @@ export function AppTourOverlay({ onFinished }: AppTourOverlayProps) {
       />
 
       {/* Mandala decorations */}
-      <MandalaDecoration
+      <AnimatedHomeMandala
         color={colors.primary}
         size={300}
         opacity={0.07}
         style={{ position: "absolute", right: -70, top: -50 }}
       />
-      <MandalaDecoration
+      <AnimatedHomeMandala
         color={colors.primary}
         size={240}
         opacity={0.05}
@@ -213,7 +213,7 @@ export function AppTourOverlay({ onFinished }: AppTourOverlayProps) {
         {/* Dot pagination */}
         <View style={styles.pagination}>
           {TOUR_SLIDES.map((_, index) => (
-            <Pressable key={index} onPress={() => goToIndex(index)} hitSlop={8}>
+            <Pressable key={index} onPress={() => goToIndex(index)} hitSlop={12}>
               <View
                 style={[
                   styles.dot,

@@ -1,1 +1,6 @@
-export { getLocalizedTitle } from "./localization";
+export {
+  getLocalizedCategory,
+  getLocalizedTitle,
+  getLocalizedType,
+  prettifyType,
+} from "./localization";

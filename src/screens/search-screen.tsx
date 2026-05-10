@@ -1,22 +1,16 @@
-import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Linking, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AartiCard, EmptyState, LoadingView, SearchBar } from "@/src/components";
+import { AartiList, EmptyState, LoadingView, SearchBar } from "@/src/components";
 import { REQUEST_FORM_URL, Spacing } from "@/src/constants";
 import { getAllAartis, searchAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
-import { useFavoritesStore } from "@/src/store";
-import type { Aarti } from "@/src/types";
 
 export function SearchScreen() {
   const { colors } = useTheme();
   const t = useT();
-  const router = useRouter();
-  const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -53,23 +47,7 @@ export function SearchScreen() {
           onAction={() => Linking.openURL(REQUEST_FORM_URL)}
         />
       ) : (
-        <FlashList
-          data={results}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }: { item: Aarti }) => (
-            <View style={styles.cardWrapper}>
-              <AartiCard
-                aarti={item}
-                variant="compact"
-                onPress={() => router.push(`/aarti/${item.id}`)}
-                isFavorite={favoriteIds.has(item.id)}
-                onToggleFavorite={() => toggleFavorite(item.id)}
-              />
-            </View>
-          )}
-        />
+        <AartiList data={results} variant="compact" />
       )}
     </SafeAreaView>
   );
@@ -83,15 +61,5 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.md,
-  },
-  list: {
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.huge,
-  },
-  cardWrapper: {
-    paddingVertical: Spacing.xs,
-  },
-  separator: {
-    height: Spacing.sm,
   },
 });

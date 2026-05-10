@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -16,7 +16,8 @@ import {
 } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getAllAartis, getCategories, getFeaturedAartis, getRecentAartis } from "@/src/database";
-import { useT, useTheme } from "@/src/hooks";
+import { useInvalidateAllAartis, useT, useTheme } from "@/src/hooks";
+import type { TranslationKey } from "@/src/i18n";
 import { fetchAndSyncAartis, needsSync } from "@/src/services";
 import { useFavoritesStore } from "@/src/store";
 
@@ -27,7 +28,7 @@ export function HomeScreen() {
   const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
-  const queryClient = useQueryClient();
+  const invalidateAllAartis = useInvalidateAllAartis();
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
@@ -58,23 +59,22 @@ export function HomeScreen() {
       const isEmpty = allAartis.length === 0;
       if (shouldSync || isEmpty) {
         await fetchAndSyncAartis();
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
-          queryClient.invalidateQueries({ queryKey: ["categories"] }),
-          queryClient.invalidateQueries({ queryKey: ["featured"] }),
-          queryClient.invalidateQueries({ queryKey: ["recents"] }),
-        ]);
+        await invalidateAllAartis();
       }
       return true;
     },
+    enabled: !isLoading,
     staleTime: Infinity,
   });
 
-  const getGreetingConfig = () => {
+  const getGreetingConfig = (): {
+    key: TranslationKey;
+    icon: keyof typeof MaterialIcons.glyphMap;
+  } => {
     const hour = new Date().getHours();
-    if (hour < 12) return { key: "greeting.morning", icon: "wb-sunny" } as const;
-    if (hour < 17) return { key: "greeting.afternoon", icon: "wb-incandescent" } as const;
-    return { key: "greeting.evening", icon: "nights-stay" } as const;
+    if (hour < 12) return { key: "greeting.morning", icon: "wb-sunny" };
+    if (hour < 17) return { key: "greeting.afternoon", icon: "wb-incandescent" };
+    return { key: "greeting.evening", icon: "nights-stay" };
   };
   const greeting = getGreetingConfig();
 
@@ -82,18 +82,13 @@ export function HomeScreen() {
     setRefreshing(true);
     try {
       await fetchAndSyncAartis();
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
-        queryClient.invalidateQueries({ queryKey: ["categories"] }),
-        queryClient.invalidateQueries({ queryKey: ["featured"] }),
-        queryClient.invalidateQueries({ queryKey: ["recents"] }),
-      ]);
+      await invalidateAllAartis();
     } catch {
       // silent - offline mode
     } finally {
       setRefreshing(false);
     }
-  }, [queryClient]);
+  }, [invalidateAllAartis]);
 
   const todaysAarti =
     featured.length > 0 ? featured[Math.floor(Date.now() / 86400000) % featured.length] : null;
@@ -134,7 +129,7 @@ export function HomeScreen() {
             <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 }}>
               <MaterialIcons name={greeting.icon} size={16} color={colors.primary} />
               <AppText variant="labelMd" color={colors.primary}>
-                {t(greeting.key as any)} • {t("home.badge")}
+                {t(greeting.key)} • {t("home.badge")}
               </AppText>
             </View>
             <AppText variant="displayLg" style={styles.headerTitle}>
@@ -174,6 +169,7 @@ export function HomeScreen() {
               key={cat.name}
               name={cat.name}
               count={cat.count}
+              translationsJson={cat.translationsJson}
               onPress={() => router.push(`/category/${cat.name}`)}
             />
           ))}

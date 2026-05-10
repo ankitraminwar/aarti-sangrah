@@ -13,6 +13,7 @@ An offline-first mobile app for Hindu devotional hymns (aartis), built with Expo
 - **Smart Notifications** — Tag-driven devotional reminders: 4 fixed daily slots + day-specific weekly nudges (e.g. Hanuman Chalisa on Tuesday, Santoshi Mata on Friday) with content-type awareness (aarti / mantra / shlok / stotra); fully localized, user-controlled
 - **Full-Text Search** — FTS5-powered search by name, deity, lyrics, or tags
 - **Categories** — Browse by deity or occasion
+- **Collections by Type** — Browse all content by devotional type (Aarti, Stotra, Mantra, Chalisa, Stuti, etc.)
 - **Smooth Animations** — All animations run on the UI thread via react-native-reanimated
 
 ## Tech Stack
@@ -88,6 +89,7 @@ See [AGENT.md](AGENT.md) for detailed architecture documentation.
 - **Animations** use `react-native-reanimated` (UI thread) — never the old `Animated` from react-native
 - **Share card** content deduplicated via `renderShareCard()` helper (share + copy use the same JSX)
 - **Notifications** are user-controlled — never requested silently on startup; re-scheduled automatically when language changes. The scheduler reads `tags` from the local SQLite DB to fire day-of-week alerts for aartis tagged `"tuesday"`, `"friday"`, etc., and uses the `type` field to display the correct content label (aarti / mantra / श्लोक / stotra) in all three languages
+- **Multi-collection sync** loads all API files from the `collections/` directory and merges them into SQLite (deduplicated by `id`)
 - **Fonts** limited to 4 loaded weights (NotoSerif 400/700 + PlusJakartaSans 400/500/600/700) — all Typography tokens map to these
 
 ## License

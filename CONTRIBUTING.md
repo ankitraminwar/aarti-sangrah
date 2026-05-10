@@ -12,8 +12,8 @@ Never hardcode URLs, API endpoints, or configuration values. Always import from 
 
 ```typescript
 // ✅ CORRECT
-import { CDN_URL } from "@/src/constants";
-const response = await fetch(CDN_URL);
+import { CDN_COLLECTION_URLS } from "@/src/constants";
+const response = await fetch(CDN_COLLECTION_URLS[0]);
 
 // ❌ WRONG
 const response = await fetch(
@@ -23,7 +23,7 @@ const response = await fetch(
 
 **Critical config values:**
 
-- `CDN_URL` — Aarti data source (do not hardcode CDN URLs elsewhere)
+- `CDN_COLLECTION_URLS` — Collection JSON sources (do not hardcode CDN URLs elsewhere)
 - `DB_NAME` — SQLite database filename
 - `STALE_TIME_MS` — Data freshness threshold (24 hours)
 - `APP_VERSION` — Semantic version matching `app.json`
@@ -243,7 +243,7 @@ aarti-sangrah/
 
 ### Why This Matters
 
-The `CDN_URL` is the **single source of truth** for Aarti data. If hardcoded elsewhere:
+The `CDN_COLLECTION_URLS` list is the **single source of truth** for devotional data sources. If hardcoded elsewhere:
 
 - Updates to the URL (e.g., switching to new API) break multiple places
 - Developers may use outdated or incorrect URLs
@@ -253,13 +253,16 @@ The `CDN_URL` is the **single source of truth** for Aarti data. If hardcoded els
 
 ```typescript
 // ✅ src/services/cdn-sync.ts
-import { CDN_URL } from "@/src/constants";
+import { CDN_COLLECTION_URLS } from "@/src/constants";
 
 export async function fetchAndSyncAartis() {
-  const url = `${CDN_URL}?_t=${Date.now()}`; // cache-busting
-  const response = await fetch(url, {
-    headers: { "Cache-Control": "no-cache" },
-  });
+  const responses = await Promise.all(
+    CDN_COLLECTION_URLS.map((baseUrl) =>
+      fetch(`${baseUrl}?_t=${Date.now()}`, {
+        headers: { "Cache-Control": "no-cache" },
+      }),
+    ),
+  );
   // ...
 }
 ```
@@ -274,8 +277,8 @@ grep -r "cdn.jsdelivr.net" src/
 grep -r "raw.githubusercontent.com" src/
 grep -r "ankitraminwar/aarti-api" src/
 
-# All CDN fetches should use CDN_URL
-grep -r "fetch(" src/ | grep -v "CDN_URL"
+# All CDN fetches should use CDN_COLLECTION_URLS
+grep -r "fetch(" src/ | grep -v "CDN_COLLECTION_URLS"
 ```
 
 ---

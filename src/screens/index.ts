@@ -1,5 +1,6 @@
 export { AartiDetailScreen } from "./aarti-detail-screen";
 export { CategoryScreen } from "./category-screen";
+export { CollectionsScreen } from "./collections-screen";
 export { FavoritesScreen } from "./favorites-screen";
 export { HelpScreen } from "./help-screen";
 export { HomeScreen } from "./home-screen";

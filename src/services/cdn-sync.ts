@@ -1,6 +1,7 @@
-import { CDN_URL, STALE_TIME_MS } from "@/src/constants";
+import { CDN_COLLECTION_URLS, STALE_TIME_MS } from "@/src/constants";
 import { getSyncMeta, setSyncMeta, upsertAartis } from "@/src/database";
-import type { Aarti, CdnAarti, CdnResponse } from "@/src/types";
+import type { Aarti, CdnAarti } from "@/src/types";
+import { CATEGORY_ALIAS_MAP } from "@/src/types";
 
 function normalizeCdnAarti(raw: CdnAarti): Aarti {
   const contentLines: string[] = [];
@@ -12,57 +13,95 @@ function normalizeCdnAarti(raw: CdnAarti): Aarti {
     contentLines.push("");
   }
 
+  // Normalise category to canonical name (e.g. "Shiv" → "Mahadev").
+  // Trim whitespace first so leading/trailing spaces don't prevent a match.
+  const trimmedCategory = raw.category.trim();
+  const canonicalCategory = CATEGORY_ALIAS_MAP[trimmedCategory] ?? trimmedCategory;
+
   return {
     id: raw.id,
     title: raw.title,
-    category: raw.category,
+    category: canonicalCategory,
     language: raw.language,
     slug: raw.slug,
     content: contentLines.join("\n").trim(),
     description: raw.subtitle ?? "",
     order: raw.order,
-    tags: JSON.stringify(raw.tags),
+    tags: JSON.stringify(raw.tags ?? []),
     isFeatured: raw.isPopular,
     updatedAt: new Date().toISOString(),
     author: raw.author ?? "",
-    type: raw.type,
+    type: raw.type.toLowerCase(),
     searchableText: raw.searchableText,
-    versesJson: JSON.stringify(raw.verses),
-    translationsJson: JSON.stringify(raw.translations),
+    versesJson: JSON.stringify(raw.verses ?? []),
+    translationsJson: JSON.stringify(raw.translations ?? {}),
   };
 }
 
-function validateCdnResponse(data: unknown): data is CdnResponse {
-  if (typeof data !== "object" || data === null) return false;
+/**
+ * Extracts the items array from a collection JSON response regardless of root key.
+ * Every collection file has exactly one top-level key whose value is an array.
+ */
+function extractItems(data: unknown): CdnAarti[] {
+  if (typeof data !== "object" || data === null) return [];
   const obj = data as Record<string, unknown>;
-  if (!Array.isArray(obj.aartis)) return false;
-  if (obj.aartis.length === 0) return false;
-  const first = obj.aartis[0] as Record<string, unknown>;
-  return typeof first.id === "string" && typeof first.title === "string";
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    if (Array.isArray(val) && val.length > 0) {
+      const first = val[0] as Record<string, unknown>;
+      if (typeof first.id === "string" && typeof first.title === "string") {
+        return val as CdnAarti[];
+      }
+    }
+  }
+  return [];
+}
+
+async function fetchCollection(url: string): Promise<CdnAarti[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const response = await fetch(`${url}?_t=${Date.now()}`, {
+      signal: controller.signal,
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+      },
+    });
+    if (!response.ok) return [];
+    const data: unknown = await response.json();
+    return extractItems(data);
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export async function fetchAndSyncAartis(): Promise<{
   count: number;
   fromCache: boolean;
 }> {
-  const url = `${CDN_URL}?_t=${Date.now()}`;
-  const response = await fetch(url, {
-    headers: {
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      Pragma: "no-cache",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`CDN fetch failed: ${response.status}`);
+  // Fetch all collections in parallel
+  const results = await Promise.all(CDN_COLLECTION_URLS.map(fetchCollection));
+
+  // Merge and deduplicate by id (first occurrence wins)
+  const seen = new Set<string>();
+  const merged: CdnAarti[] = [];
+  for (const items of results) {
+    for (const item of items) {
+      if (!seen.has(item.id)) {
+        seen.add(item.id);
+        merged.push(item);
+      }
+    }
   }
 
-  const data: unknown = await response.json();
-
-  if (!validateCdnResponse(data)) {
-    throw new Error("Invalid CDN response structure");
+  if (merged.length === 0) {
+    throw new Error("All CDN collection fetches failed or returned empty data");
   }
 
-  const normalized = data.aartis.map(normalizeCdnAarti);
+  const normalized = merged.map(normalizeCdnAarti);
   await upsertAartis(normalized);
   await setSyncMeta("lastSync", new Date().toISOString());
   await setSyncMeta("totalCount", String(normalized.length));

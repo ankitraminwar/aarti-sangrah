@@ -32,9 +32,10 @@ aarti-sangrah/
 │   ├── _layout.tsx           # Root layout (fonts, DB init, providers)
 │   ├── help.tsx              # → HelpScreen (FAQ page)
 │   ├── (tabs)/
-│   │   ├── _layout.tsx       # Tab navigator (Home, Search, Favorites, Settings)
+│   │   ├── _layout.tsx       # Tab navigator (Home, Search, Collections, Favorites, Settings)
 │   │   ├── index.tsx         # → HomeScreen
 │   │   ├── search.tsx        # → SearchScreen
+│   │   ├── collections.tsx   # → CollectionsScreen (type-based content browser)
 │   │   ├── favorites.tsx     # → FavoritesScreen
 │   │   └── settings.tsx      # → SettingsScreen
 │   ├── aarti/[id].tsx        # → AartiDetailScreen
@@ -43,7 +44,7 @@ aarti-sangrah/
 │   ├── types/aarti.ts        # All TypeScript interfaces & enums
 │   ├── constants/
 │   │   ├── theme.ts          # LightColors, DarkColors, Spacing, Radius, Typography
-│   │   └── config.ts         # CDN_URL, DB_NAME, STALE_TIME, APP_VERSION
+│   │   └── config.ts         # CDN_COLLECTION_URLS, DB_NAME, STALE_TIME, APP_VERSION
 │   ├── database/index.ts     # SQLite schema, CRUD, sync_meta
 │   ├── services/
 │   │   ├── cdn-sync.ts       # CDN fetch → normalize → upsert
@@ -69,6 +70,7 @@ aarti-sangrah/
 │   └── screens/              # Screen components
 │       ├── home-screen.tsx
 │       ├── search-screen.tsx
+│       ├── collections-screen.tsx
 │       ├── favorites-screen.tsx
 │       ├── settings-screen.tsx
 │       ├── aarti-detail-screen.tsx
@@ -240,7 +242,7 @@ Use `AppModal` component instead of `Alert.alert()`:
 
 ## 8. Offline-First Strategy
 
-1. On first launch, fetch all aartis from CDN
+1. On first launch, fetch all collection files from CDN (`collections/*.json`)
 2. Store in SQLite with WAL mode for concurrent reads
 3. `sync_meta` table tracks last sync timestamp
 4. Re-sync if stale (>24h) or on manual pull-to-refresh

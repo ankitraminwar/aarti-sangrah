@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [master]
   push:
+    branches: [master]
+  pull_request:
     branches: [master]
 
 # Cancel in-flight runs for the same branch on new pushes

@@ -2,7 +2,7 @@ import React from "react";
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 
 import { Radius, Spacing } from "@/src/constants";
-import { useTheme } from "@/src/hooks";
+import { useT, useTheme } from "@/src/hooks";
 
 import { AppText } from "./app-text";
 
@@ -24,6 +24,7 @@ export function AppModal({
   onPrimary,
 }: AppModalProps) {
   const { colors } = useTheme();
+  const t = useT();
 
   return (
     <Modal
@@ -48,7 +49,7 @@ export function AppModal({
               style={[styles.button, { backgroundColor: colors.surfaceContainer }]}
             >
               <AppText variant="labelLg" color={colors.onSurfaceVariant}>
-                OK
+                {t("modal.ok")}
               </AppText>
             </Pressable>
             {primaryLabel && onPrimary ? (

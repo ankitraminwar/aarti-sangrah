@@ -1,6 +1,8 @@
 import { Radius, Spacing } from "@/src/constants";
 import { useT, useTheme } from "@/src/hooks";
-import { CATEGORY_ICONS } from "@/src/types";
+import { useAppStore } from "@/src/store";
+import { CATEGORY_REGISTRY } from "@/src/types";
+import { getLocalizedCategory } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -9,13 +11,17 @@ import { AppText } from "./app-text";
 interface CategoryCardProps {
   name: string;
   count: number;
+  translationsJson?: string;
   onPress: () => void;
 }
 
-export function CategoryCard({ name, count, onPress }: CategoryCardProps) {
+export function CategoryCard({ name, count, translationsJson, onPress }: CategoryCardProps) {
   const { colors, isDark } = useTheme();
   const t = useT();
-  const iconName = (CATEGORY_ICONS[name] ?? "auto-awesome") as keyof typeof MaterialIcons.glyphMap;
+  const language = useAppStore((s) => s.language);
+  const displayName = getLocalizedCategory(translationsJson ?? "{}", name, language);
+  const iconName = (CATEGORY_REGISTRY[name]?.icon ??
+    "auto-awesome") as keyof typeof MaterialIcons.glyphMap;
 
   return (
     <Pressable
@@ -39,8 +45,8 @@ export function CategoryCard({ name, count, onPress }: CategoryCardProps) {
       >
         <MaterialIcons name={iconName} size={28} color={colors.primary} />
       </View>
-      <AppText variant="titleMd" numberOfLines={1}>
-        {name}
+      <AppText variant="titleMd" numberOfLines={2}>
+        {displayName}
       </AppText>
       <AppText variant="labelSm" color={colors.onSurfaceVariant}>
         {count} {count === 1 ? t("categoryCard.aarti") : t("categoryCard.aartis")}

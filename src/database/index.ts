@@ -1,5 +1,6 @@
 import { DB_NAME } from "@/src/constants";
 import type { Aarti, RecentAarti } from "@/src/types";
+import { CATEGORY_ALIAS_MAP } from "@/src/types";
 import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
@@ -83,6 +84,37 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
     );
   } catch {
     // Column already exists – ignore
+  }
+
+  // Migration: normalise old category names to canonical keys via CATEGORY_ALIAS_MAP
+  // (e.g. "Shiv" → "Mahadev"). Guarded by a sync_meta key so it only runs once.
+  const aliasesNormalized = await database.getFirstAsync<{ value: string }>(
+    "SELECT value FROM sync_meta WHERE key = 'aliases_v1'",
+  );
+  if (!aliasesNormalized) {
+    for (const [alias, canonical] of Object.entries(CATEGORY_ALIAS_MAP)) {
+      if (alias !== canonical) {
+        await database.runAsync(`UPDATE aartis SET category = $canonical WHERE category = $alias`, {
+          $canonical: canonical,
+          $alias: alias,
+        });
+      }
+    }
+    await database.runAsync(
+      "INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('aliases_v1', 'true')",
+    );
+  }
+
+  // Migration: normalise type field to lowercase (API now sends some types with
+  // a capital first character e.g. "Ashtak", "Prayer", "Stotra", "Stuti").
+  const typesNormalized = await database.getFirstAsync<{ value: string }>(
+    "SELECT value FROM sync_meta WHERE key = 'types_lowercase_v1'",
+  );
+  if (!typesNormalized) {
+    await database.runAsync("UPDATE aartis SET type = LOWER(type)");
+    await database.runAsync(
+      "INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('types_lowercase_v1', 'true')",
+    );
   }
 
   // FTS5 Initialization
@@ -217,10 +249,14 @@ export async function getAartiById(id: string): Promise<Aarti | null> {
   return row ? mapRowToAarti(row) : null;
 }
 
-export async function getCategories(): Promise<{ name: string; count: number }[]> {
+export async function getCategories(): Promise<
+  { name: string; count: number; translationsJson: string }[]
+> {
   const database = await getDatabase();
-  return database.getAllAsync<{ name: string; count: number }>(
-    'SELECT category as name, COUNT(*) as count FROM aartis GROUP BY category ORDER BY MIN("order") ASC',
+  return database.getAllAsync<{ name: string; count: number; translationsJson: string }>(
+    `SELECT category as name, COUNT(*) as count,
+      (SELECT translationsJson FROM aartis a2 WHERE a2.category = a.category ORDER BY a2."order" ASC LIMIT 1) as translationsJson
+     FROM aartis a GROUP BY category ORDER BY MIN("order") ASC`,
   );
 }
 

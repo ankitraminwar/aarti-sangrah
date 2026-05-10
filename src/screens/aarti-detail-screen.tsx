@@ -10,13 +10,13 @@ import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 
-import { AppText, LoadingView, MandalaDecoration } from "@/src/components";
+import { AnimatedHomeMandala, AppText, LoadingView } from "@/src/components";
 import { PLAY_STORE_URL, Radius, Spacing } from "@/src/constants";
 import { getAartiById, upsertRecent } from "@/src/database";
 import { useFontSize, useT, useTheme } from "@/src/hooks";
 import { useAppStore, useFavoritesStore } from "@/src/store";
 import type { CdnVerse } from "@/src/types";
-import { getLocalizedTitle } from "@/src/utils";
+import { getLocalizedCategory, getLocalizedTitle, getLocalizedType } from "@/src/utils";
 
 export function AartiDetailScreen() {
   const { colors } = useTheme();
@@ -123,13 +123,13 @@ export function AartiDetailScreen() {
     const displayVerses = limitVerses ? verses.slice(0, 4) : verses;
     return (
       <View style={[styles.shareCard, { backgroundColor: colors.surface }]}>
-        <MandalaDecoration
+        <AnimatedHomeMandala
           color={colors.primary}
           size={180}
           opacity={0.09}
           style={{ position: "absolute", right: -40, top: -40 }}
         />
-        <MandalaDecoration
+        <AnimatedHomeMandala
           color={colors.primary}
           size={140}
           opacity={0.06}
@@ -251,7 +251,8 @@ export function AartiDetailScreen() {
         {/* Title section */}
         <Animated.View entering={FadeIn.duration(400)} style={styles.titleSection}>
           <AppText variant="labelMd" color={colors.primary}>
-            {aarti.category} • {aarti.type}
+            {getLocalizedCategory(aarti.translationsJson, aarti.category, language)} •{" "}
+            {getLocalizedType(aarti, language)}
           </AppText>
           <AppText
             variant="displayLg"
@@ -376,7 +377,7 @@ const styles = StyleSheet.create({
   },
   chorusBadge: {
     alignSelf: "flex-start",
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
     marginBottom: Spacing.xs,

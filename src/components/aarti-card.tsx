@@ -2,7 +2,7 @@ import { Radius, Spacing } from "@/src/constants";
 import { useTheme } from "@/src/hooks";
 import { useAppStore } from "@/src/store";
 import type { Aarti } from "@/src/types";
-import { getLocalizedTitle } from "@/src/utils";
+import { getLocalizedCategory, getLocalizedTitle } from "@/src/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -27,6 +27,7 @@ export function AartiCard({
   const { colors, isDark } = useTheme();
   const language = useAppStore((s) => s.language);
   const localizedTitle = getLocalizedTitle(aarti, language);
+  const localizedCategory = getLocalizedCategory(aarti.translationsJson, aarti.category, language);
 
   if (variant === "featured") {
     return (
@@ -48,7 +49,7 @@ export function AartiCard({
               variant="labelMd"
               color={isDark ? colors.onPrimaryContainer : colors.onPrimary}
             >
-              {aarti.category}
+              {localizedCategory}
             </AppText>
             <AppText
               variant="headlineMd"
@@ -94,11 +95,11 @@ export function AartiCard({
         ]}
       >
         <View style={styles.compactContent}>
-          <AppText variant="titleSm" numberOfLines={1}>
+          <AppText variant="titleSm" numberOfLines={2}>
             {localizedTitle}
           </AppText>
-          <AppText variant="labelSm" color={colors.onSurfaceVariant}>
-            {aarti.category} • {aarti.language.toUpperCase()}
+          <AppText variant="labelSm" color={colors.onSurfaceVariant} style={styles.categoryLabel}>
+            {localizedCategory} • {aarti?.language?.toUpperCase()}
           </AppText>
         </View>
         {onToggleFavorite && (
@@ -130,8 +131,8 @@ export function AartiCard({
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <View style={[styles.categoryBadge, { backgroundColor: colors.surfaceContainer }]}>
-            <AppText variant="labelSm" color={colors.primary}>
-              {aarti.category}
+            <AppText variant="labelSm" color={colors.primary} style={styles.categoryLabel}>
+              {localizedCategory}
             </AppText>
           </View>
           {onToggleFavorite && (
@@ -178,9 +179,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   categoryBadge: {
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
+    flexShrink: 0,
   },
   titleText: {
     marginTop: Spacing.xs,
@@ -215,5 +217,8 @@ const styles = StyleSheet.create({
   compactContent: {
     flex: 1,
     gap: Spacing.xs,
+  },
+  categoryLabel: {
+    fontFamily: "NotoSerif_700Bold",
   },
 });

@@ -16,7 +16,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
-import { AppState } from "react-native";
+import { AppState, View } from "react-native";
 import "react-native-reanimated";
 
 import { AppTourOverlay, SplashOverlay } from "@/src/components";
@@ -67,7 +67,13 @@ function RootNavigator() {
 
   return (
     <ThemeProvider value={navTheme}>
-      <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "fade",
+          contentStyle: { backgroundColor: colors.surface },
+        }}
+      >
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="aarti/[id]" options={{ animation: "slide_from_bottom" }} />
         <Stack.Screen name="category/[name]" />
@@ -83,6 +89,7 @@ export default function RootLayout() {
   const [dbReady, setDbReady] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
   const { hasSeenTour, setHasSeenTour } = useAppStore();
+  const isSyncingRef = React.useRef(false);
 
   const [serifLoaded] = useNotoSerif({
     NotoSerif_400Regular,
@@ -105,6 +112,10 @@ export default function RootLayout() {
       )
       .then(() => {
         setDbReady(true);
+      })
+      .catch(() => {
+        // DB init failed (e.g. storage full) — unblock UI so user sees the app
+        setDbReady(true);
       });
   }, []);
 
@@ -118,21 +129,24 @@ export default function RootLayout() {
   // Auto-sync when app returns to foreground after 24h staleness
   useEffect(() => {
     const subscription = AppState.addEventListener("change", async (state) => {
-      if (state === "active") {
-        try {
-          const shouldSync = await needsSync();
-          if (shouldSync) {
-            await fetchAndSyncAartis();
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
-              queryClient.invalidateQueries({ queryKey: ["categories"] }),
-              queryClient.invalidateQueries({ queryKey: ["featured"] }),
-              queryClient.invalidateQueries({ queryKey: ["recents"] }),
-            ]);
-          }
-        } catch {
-          // silent - offline mode
+      if (state !== "active") return;
+      if (isSyncingRef.current) return; // prevent concurrent syncs
+      isSyncingRef.current = true;
+      try {
+        const shouldSync = await needsSync();
+        if (shouldSync) {
+          await fetchAndSyncAartis();
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
+            queryClient.invalidateQueries({ queryKey: ["categories"] }),
+            queryClient.invalidateQueries({ queryKey: ["featured"] }),
+            queryClient.invalidateQueries({ queryKey: ["recents"] }),
+          ]);
         }
+      } catch {
+        // silent - offline mode
+      } finally {
+        isSyncingRef.current = false;
       }
     });
     return () => subscription.remove();
@@ -142,16 +156,20 @@ export default function RootLayout() {
     setSplashDone(true);
   }, []);
 
+  const { colors } = useTheme();
+
   // Show nothing while fonts are still loading
   if (!serifLoaded || !jakartaLoaded) {
     return null;
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootNavigator />
-      {dbReady && !hasSeenTour && <AppTourOverlay onFinished={() => setHasSeenTour(true)} />}
-      {(!splashDone || !dbReady) && <SplashOverlay onFinished={handleSplashFinished} />}
-    </QueryClientProvider>
+    <View style={{ flex: 1, backgroundColor: colors.surface }}>
+      <QueryClientProvider client={queryClient}>
+        <RootNavigator />
+        {dbReady && !hasSeenTour && <AppTourOverlay onFinished={() => setHasSeenTour(true)} />}
+        {(!splashDone || !dbReady) && <SplashOverlay onFinished={handleSplashFinished} />}
+      </QueryClientProvider>
+    </View>
   );
 }

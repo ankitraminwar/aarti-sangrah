@@ -1,22 +1,20 @@
-import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AartiCard, AppText, EmptyState, LoadingView, MandalaDecoration } from "@/src/components";
+import { AartiList, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getFavoriteAartis } from "@/src/database";
 import { useT, useTheme } from "@/src/hooks";
 import { useFavoritesStore } from "@/src/store";
-import type { Aarti } from "@/src/types";
 
 export function FavoritesScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
-  const { favoriteIds, toggleFavorite } = useFavoritesStore();
+  const { favoriteIds } = useFavoritesStore();
 
   const { data: favorites = [], isLoading } = useQuery({
     queryKey: ["favorites", Array.from(favoriteIds).sort().join(",")],
@@ -31,7 +29,7 @@ export function FavoritesScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
         <View style={styles.headerSection}>
-          <MandalaDecoration
+          <AnimatedHomeMandala
             color={colors.primary}
             size={220}
             opacity={0.08}
@@ -53,7 +51,7 @@ export function FavoritesScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
       <View style={styles.headerSection}>
-        <MandalaDecoration
+        <AnimatedHomeMandala
           color={colors.primary}
           size={220}
           opacity={0.08}
@@ -65,22 +63,7 @@ export function FavoritesScreen() {
           {favorites.length === 1 ? t("favorites.hymn") : t("favorites.hymns")}
         </AppText>
       </View>
-      <FlashList
-        data={favorites}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        renderItem={({ item }: { item: Aarti }) => (
-          <View style={styles.cardWrapper}>
-            <AartiCard
-              aarti={item}
-              onPress={() => router.push(`/aarti/${item.id}`)}
-              isFavorite={favoriteIds.has(item.id)}
-              onToggleFavorite={() => toggleFavorite(item.id)}
-            />
-          </View>
-        )}
-      />
+      <AartiList data={favorites} />
     </SafeAreaView>
   );
 }
@@ -100,15 +83,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: -40,
     top: -20,
-  },
-  list: {
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.huge,
-  },
-  cardWrapper: {
-    paddingVertical: Spacing.xs,
-  },
-  separator: {
-    height: Spacing.sm,
   },
 });

@@ -10,7 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { Spacing, Typography } from "@/src/constants";
-import { useTheme } from "@/src/hooks";
+import { useT, useTheme } from "@/src/hooks";
 
 import { AppText } from "./app-text";
 
@@ -23,6 +23,7 @@ const ICONS: (keyof typeof MaterialIcons.glyphMap)[] = [
 
 export function DataSyncOverlay() {
   const { colors } = useTheme();
+  const t = useT();
   const [iconIndex, setIconIndex] = useState(0);
   const fade = useSharedValue(0);
   const pulse = useSharedValue(1);
@@ -72,7 +73,7 @@ export function DataSyncOverlay() {
             { ...Typography.displayLg, color: colors.primary, textAlign: "center", width: "100%" },
           ]}
         >
-          तमसो मा ज्योतिर्गमय
+          {t("dataSync.mantra")}
         </AppText>
 
         <AppText
@@ -85,7 +86,7 @@ export function DataSyncOverlay() {
             },
           ]}
         >
-          Lead me from darkness to light.
+          {t("dataSync.subtitle")}
         </AppText>
       </View>
 
@@ -101,7 +102,7 @@ export function DataSyncOverlay() {
             },
           ]}
         >
-          GATHERING PRAYERS ...
+          {t("dataSync.progress")}
         </AppText>
       </View>
     </Animated.View>
