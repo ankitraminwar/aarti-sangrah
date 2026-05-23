@@ -49,7 +49,7 @@ export function CategoryCard({ name, count, translationsJson, onPress }: Categor
         {displayName}
       </AppText>
       <AppText variant="labelSm" color={colors.onSurfaceVariant}>
-        {count} {count === 1 ? t("categoryCard.aarti") : t("categoryCard.aartis")}
+        {count} {count === 1 ? t("categoryCard.record") : t("categoryCard.records")}
       </AppText>
     </Pressable>
   );
