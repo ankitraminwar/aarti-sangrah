@@ -6,13 +6,14 @@ import { StyleSheet, View } from "react-native";
 import { AartiList, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getAartisByCategory } from "@/src/database";
-import { useT, useTheme } from "@/src/hooks";
+import { useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import { useAppStore } from "@/src/store";
 import { getLocalizedCategory } from "@/src/utils";
 
 export function CategoryScreen() {
   const { colors } = useTheme();
   const t = useT();
+  const { listPaddingHorizontal } = useResponsiveLayout();
   const { name } = useLocalSearchParams<{ name: string }>();
   const router = useRouter();
   const language = useAppStore((s) => s.language);
@@ -47,7 +48,7 @@ export function CategoryScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingHorizontal: listPaddingHorizontal }]}>
         <AnimatedHomeMandala
           color={colors.primary}
           size={220}
@@ -74,7 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.lg,
     gap: Spacing.xs,

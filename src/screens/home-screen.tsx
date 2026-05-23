@@ -16,7 +16,7 @@ import {
 } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getAllAartis, getCategories, getFeaturedAartis, getRecentAartis } from "@/src/database";
-import { useInvalidateAllAartis, useT, useTheme } from "@/src/hooks";
+import { useInvalidateAllAartis, useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import { fetchAndSyncAartis, needsSync } from "@/src/services";
 import { useFavoritesStore } from "@/src/store";
@@ -28,6 +28,7 @@ export function HomeScreen() {
   const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
+  const { listPaddingHorizontal } = useResponsiveLayout();
   const invalidateAllAartis = useInvalidateAllAartis();
 
   const { data: categories = [] } = useQuery({
@@ -116,7 +117,10 @@ export function HomeScreen() {
         colors={[colors.gradientStart + "22", colors.surface]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        style={[styles.headerGradient, { paddingTop: insets.top + Spacing.xl }]}
+        style={[
+          styles.headerGradient,
+          { paddingTop: insets.top + Spacing.xl, paddingHorizontal: listPaddingHorizontal },
+        ]}
       >
         <AnimatedHomeMandala
           color={colors.primary}
@@ -148,7 +152,7 @@ export function HomeScreen() {
       {todaysAarti && (
         <View style={styles.section}>
           <SectionHeader title={t("home.todaysAarti")} />
-          <View style={styles.sectionPadded}>
+          <View style={[styles.sectionPadded, { paddingHorizontal: listPaddingHorizontal }]}>
             <AartiCard
               aarti={todaysAarti}
               variant="featured"
@@ -163,7 +167,7 @@ export function HomeScreen() {
       {/* Divine Collections - Category Grid */}
       <View style={styles.section}>
         <SectionHeader title={t("home.collections")} />
-        <View style={styles.categoryGrid}>
+        <View style={[styles.categoryGrid, { paddingHorizontal: listPaddingHorizontal }]}>
           {categories.map((cat) => (
             <CategoryCard
               key={cat.name}
@@ -188,7 +192,10 @@ export function HomeScreen() {
             data={featured.slice(0, 8)}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalList}
+            contentContainerStyle={[
+              styles.horizontalList,
+              { paddingHorizontal: listPaddingHorizontal },
+            ]}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <AartiCard
@@ -207,7 +214,7 @@ export function HomeScreen() {
       {recents.length > 0 && (
         <View style={styles.section}>
           <SectionHeader title={t("home.continueReading")} />
-          <View style={styles.sectionPadded}>
+          <View style={[styles.sectionPadded, { paddingHorizontal: listPaddingHorizontal }]}>
             {recents.map((item) => (
               <AartiCard
                 key={item.id}
@@ -236,7 +243,6 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingBottom: Spacing.xl,
-    paddingHorizontal: Spacing.xl,
     overflow: "hidden",
   },
   headerRow: {
@@ -261,16 +267,12 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xl,
   },
   sectionPadded: {
-    paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
   },
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
   },
-  horizontalList: {
-    paddingHorizontal: Spacing.xl,
-  },
+  horizontalList: {},
 });

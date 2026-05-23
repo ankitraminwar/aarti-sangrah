@@ -13,7 +13,7 @@ import ViewShot from "react-native-view-shot";
 import { AnimatedHomeMandala, AppText, LoadingView } from "@/src/components";
 import { PLAY_STORE_URL, Radius, Spacing } from "@/src/constants";
 import { getAartiById, upsertRecent } from "@/src/database";
-import { useFontSize, useT, useTheme } from "@/src/hooks";
+import { useFontSize, useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import { useAppStore, useFavoritesStore } from "@/src/store";
 import type { CdnVerse } from "@/src/types";
 import { getLocalizedCategory, getLocalizedTitle, getLocalizedType } from "@/src/utils";
@@ -22,6 +22,7 @@ export function AartiDetailScreen() {
   const { colors } = useTheme();
   const t = useT();
   const fontConfig = useFontSize();
+  const { readingPaddingHorizontal } = useResponsiveLayout();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { favoriteIds, toggleFavorite } = useFavoritesStore();
@@ -192,7 +193,12 @@ export function AartiDetailScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
       {/* Toolbar */}
-      <View style={[styles.toolbar, { backgroundColor: colors.surface }]}>
+      <View
+        style={[
+          styles.toolbar,
+          { backgroundColor: colors.surface, paddingHorizontal: readingPaddingHorizontal },
+        ]}
+      >
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
         </Pressable>
@@ -245,7 +251,10 @@ export function AartiDetailScreen() {
       <ScrollView
         ref={scrollRef}
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingHorizontal: readingPaddingHorizontal },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Title section */}
@@ -347,7 +356,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.md,
   },
@@ -359,9 +367,7 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
-  scrollContent: {
-    paddingHorizontal: Spacing.xl,
-  },
+  scrollContent: {},
   titleSection: {
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.xxl,

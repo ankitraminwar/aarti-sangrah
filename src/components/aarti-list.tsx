@@ -4,6 +4,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 
 import { Spacing } from "@/src/constants";
+import { useResponsiveLayout } from "@/src/hooks";
 import { useFavoritesStore } from "@/src/store";
 import type { Aarti } from "@/src/types";
 
@@ -17,12 +18,13 @@ interface AartiListProps {
 export function AartiList({ data, variant = "default" }: AartiListProps) {
   const router = useRouter();
   const { favoriteIds, toggleFavorite } = useFavoritesStore();
+  const { listPaddingHorizontal } = useResponsiveLayout();
 
   return (
     <FlashList
       data={data}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.list}
+      contentContainerStyle={[styles.list, { paddingHorizontal: listPaddingHorizontal }]}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       renderItem={({ item }: { item: Aarti }) => (
         <View style={styles.cardWrapper}>
@@ -41,7 +43,6 @@ export function AartiList({ data, variant = "default" }: AartiListProps) {
 
 const styles = StyleSheet.create({
   list: {
-    paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.huge,
   },
   cardWrapper: {

@@ -8,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AartiList, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
 import { Radius, Spacing } from "@/src/constants";
 import { getAllAartis } from "@/src/database";
-import { useT, useTheme } from "@/src/hooks";
+import { useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import { useAppStore } from "@/src/store";
 import { getLocalizedType } from "@/src/utils";
 
@@ -21,6 +21,7 @@ interface TypeOption {
 export function CollectionsScreen() {
   const { colors } = useTheme();
   const t = useT();
+  const { listPaddingHorizontal } = useResponsiveLayout();
   const language = useAppStore((s) => s.language);
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
@@ -79,7 +80,7 @@ export function CollectionsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
-      <View style={styles.headerWrap}>
+      <View style={[styles.headerWrap, { paddingHorizontal: listPaddingHorizontal }]}>
         <AnimatedHomeMandala
           color={colors.primary}
           size={210}
@@ -157,7 +158,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerWrap: {
-    paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.md,
     overflow: "hidden",

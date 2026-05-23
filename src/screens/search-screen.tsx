@@ -6,11 +6,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AartiList, EmptyState, LoadingView, SearchBar } from "@/src/components";
 import { REQUEST_FORM_URL, Spacing } from "@/src/constants";
 import { getAllAartis, searchAartis } from "@/src/database";
-import { useT, useTheme } from "@/src/hooks";
+import { useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 
 export function SearchScreen() {
   const { colors } = useTheme();
   const t = useT();
+  const { listPaddingHorizontal } = useResponsiveLayout();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -27,7 +28,7 @@ export function SearchScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingHorizontal: listPaddingHorizontal }]}>
         <SearchBar
           value={query}
           onChangeText={setQuery}
@@ -59,7 +60,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: Spacing.lg,
-    paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.md,
   },
 });
