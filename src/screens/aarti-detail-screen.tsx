@@ -1,11 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
-import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
@@ -18,6 +17,16 @@ import { useAppStore, useFavoritesStore } from "@/src/store";
 import type { CdnVerse } from "@/src/types";
 import { getLocalizedCategory, getLocalizedTitle, getLocalizedType } from "@/src/utils";
 
+type ShareCaptureMode = "share" | "copy" | null;
+
+function waitForNextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
 export function AartiDetailScreen() {
   const { colors } = useTheme();
   const t = useT();
@@ -29,10 +38,10 @@ export function AartiDetailScreen() {
   const language = useAppStore((s) => s.language);
   const scrollRef = useRef<ScrollView>(null);
   const shareRef = useRef<ViewShot>(null);
-  const copyShareRef = useRef<ViewShot>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [copied, setCopied] = useState(false);
   const [localDelta, setLocalDelta] = useState(0);
+  const [shareCaptureMode, setShareCaptureMode] = useState<ShareCaptureMode>(null);
   const decreaseFont = useCallback(() => setLocalDelta((d) => Math.max(-6, d - 2)), []);
   const increaseFont = useCallback(() => setLocalDelta((d) => Math.min(8, d + 2)), []);
 
@@ -43,6 +52,36 @@ export function AartiDetailScreen() {
     queryFn: () => getAartiById(id ?? ""),
     enabled: !!id,
   });
+
+  const verses = useMemo<CdnVerse[]>(() => {
+    if (!aarti?.versesJson) return [];
+    try {
+      return JSON.parse(aarti.versesJson) as CdnVerse[];
+    } catch {
+      return [];
+    }
+  }, [aarti?.versesJson]);
+
+  const versePrimaryFlags = useMemo(() => {
+    const flags: boolean[] = [];
+    let counter = 0;
+    let skipNext = false;
+
+    for (const verse of verses) {
+      if (verse.type === "chorus") {
+        flags.push(true);
+        skipNext = true;
+      } else if (skipNext) {
+        flags.push(false);
+        skipNext = false;
+      } else {
+        counter++;
+        flags.push(counter % 2 === 0);
+      }
+    }
+
+    return flags;
+  }, [verses]);
 
   // Track recent on mount and invalidate the recents query so Home reflects it
   useEffect(() => {
@@ -61,8 +100,11 @@ export function AartiDetailScreen() {
   }, []);
 
   const handleShare = useCallback(async () => {
-    if (!aarti || !shareRef.current?.capture) return;
+    if (!aarti) return;
+    setShareCaptureMode("share");
     try {
+      await waitForNextPaint();
+      if (!shareRef.current?.capture) return;
       const uri = await shareRef.current.capture();
       await Sharing.shareAsync(uri, {
         mimeType: "image/png",
@@ -70,19 +112,26 @@ export function AartiDetailScreen() {
       });
     } catch {
       // fallback silently
+    } finally {
+      setShareCaptureMode(null);
     }
   }, [aarti, language]);
 
   const handleCopy = useCallback(async () => {
-    if (!aarti || !copyShareRef.current?.capture) return;
+    if (!aarti) return;
+    setShareCaptureMode("copy");
     try {
-      const base64 = await copyShareRef.current.capture();
+      await waitForNextPaint();
+      if (!shareRef.current?.capture) return;
+      const base64 = await shareRef.current.capture();
       await Clipboard.setImageAsync(base64);
       if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
       setCopied(true);
       copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // fallback silently
+    } finally {
+      setShareCaptureMode(null);
     }
   }, [aarti]);
 
@@ -90,35 +139,7 @@ export function AartiDetailScreen() {
     return <LoadingView message={t("detail.loading")} />;
   }
 
-  let verses: CdnVerse[] = [];
-  try {
-    verses = JSON.parse(aarti.versesJson) as CdnVerse[];
-  } catch {
-    // fallback to content
-  }
-
   const isFav = favoriteIds.has(aarti.id);
-
-  // Precompute which verses get primary-colored text.
-  // Chorus is always primary. Every other non-chorus verse gets primary.
-  // After a chorus, the next non-chorus verse is skipped (stays normal).
-  const versePrimaryFlags: boolean[] = [];
-  {
-    let counter = 0;
-    let skipNext = false;
-    for (const verse of verses) {
-      if (verse.type === "chorus") {
-        versePrimaryFlags.push(true);
-        skipNext = true;
-      } else if (skipNext) {
-        versePrimaryFlags.push(false);
-        skipNext = false;
-      } else {
-        counter++;
-        versePrimaryFlags.push(counter % 2 === 0);
-      }
-    }
-  }
 
   const renderShareCard = (keyPrefix: string, limitVerses?: boolean) => {
     const displayVerses = limitVerses ? verses.slice(0, 4) : verses;
@@ -336,14 +357,20 @@ export function AartiDetailScreen() {
       </ScrollView>
 
       {/* Hidden shareable image view */}
-      <View style={styles.shareContainer}>
-        <ViewShot ref={shareRef} options={{ format: "png", quality: 1 }}>
-          {renderShareCard("share")}
-        </ViewShot>
-        <ViewShot ref={copyShareRef} options={{ format: "png", quality: 1, result: "base64" }}>
-          {renderShareCard("copy", true)}
-        </ViewShot>
-      </View>
+      {shareCaptureMode && (
+        <View style={styles.shareContainer}>
+          <ViewShot
+            ref={shareRef}
+            options={
+              shareCaptureMode === "copy"
+                ? { format: "png", quality: 1, result: "base64" }
+                : { format: "png", quality: 1 }
+            }
+          >
+            {renderShareCard(shareCaptureMode, shareCaptureMode === "copy")}
+          </ViewShot>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

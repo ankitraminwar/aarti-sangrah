@@ -231,6 +231,14 @@ export async function getAllAartis(): Promise<Aarti[]> {
   return rows.map(mapRowToAarti);
 }
 
+export async function getAartiCount(): Promise<number> {
+  const database = await getDatabase();
+  const row = await database.getFirstAsync<{ count: number }>(
+    "SELECT COUNT(*) as count FROM aartis",
+  );
+  return row?.count ?? 0;
+}
+
 export async function getAartisByCategory(category: string): Promise<Aarti[]> {
   const database = await getDatabase();
   const rows = await database.getAllAsync<Record<string, unknown>>(

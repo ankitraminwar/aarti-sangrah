@@ -3,6 +3,7 @@ const path = require("path");
 const {
   AndroidConfig,
   withAndroidManifest,
+  withGradleProperties,
   withAndroidStyles,
   withFinalizedMod,
 } = require("@expo/config-plugins");
@@ -13,7 +14,31 @@ const { Manifest, Styles } = AndroidConfig;
 const CUTOUT_MODE = "android:windowLayoutInDisplayCutoutMode";
 const STATUS_BAR_COLOR = "android:statusBarColor";
 
+const RELEASE_SIZE_GRADLE_PROPERTIES = {
+  "android.enableMinifyInReleaseBuilds": "true",
+  "android.enableShrinkResourcesInReleaseBuilds": "true",
+  "expo.gif.enabled": "false",
+  "expo.webp.enabled": "false",
+};
+
+function setGradleProperty(properties, key, value) {
+  const existing = properties.find((item) => item.type === "property" && item.key === key);
+  if (existing) {
+    existing.value = value;
+  } else {
+    properties.push({ type: "property", key, value });
+  }
+}
+
 function withAndroidLargeScreenSupport(config) {
+  config = withGradleProperties(config, (config) => {
+    Object.entries(RELEASE_SIZE_GRADLE_PROPERTIES).forEach(([key, value]) => {
+      setGradleProperty(config.modResults, key, value);
+    });
+
+    return config;
+  });
+
   config = withAndroidManifest(config, (config) => {
     const mainActivity = Manifest.getMainActivityOrThrow(config.modResults);
 
