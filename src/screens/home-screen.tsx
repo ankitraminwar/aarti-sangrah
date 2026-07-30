@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -15,8 +15,8 @@ import {
   SectionHeader,
 } from "@/src/components";
 import { Spacing } from "@/src/constants";
-import { getAllAartis, getCategories, getFeaturedAartis, getRecentAartis } from "@/src/database";
-import { useInvalidateAllAartis, useT, useTheme } from "@/src/hooks";
+import { getAartiCount, getCategories, getFeaturedAartis, getRecentAartis } from "@/src/database";
+import { useInvalidateAllAartis, useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import { fetchAndSyncAartis, needsSync } from "@/src/services";
 import { useFavoritesStore } from "@/src/store";
@@ -28,6 +28,7 @@ export function HomeScreen() {
   const { favoriteIds, toggleFavorite } = useFavoritesStore();
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
+  const { listPaddingHorizontal } = useResponsiveLayout();
   const invalidateAllAartis = useInvalidateAllAartis();
 
   const { data: categories = [] } = useQuery({
@@ -45,9 +46,9 @@ export function HomeScreen() {
     queryFn: () => getRecentAartis(5),
   });
 
-  const { data: allAartis = [], isLoading } = useQuery({
-    queryKey: ["allAartis"],
-    queryFn: getAllAartis,
+  const { data: aartiCount = 0, isLoading: isCountLoading } = useQuery({
+    queryKey: ["aartiCount"],
+    queryFn: getAartiCount,
   });
 
   // Initial sync — runs when stale (>24h) or when the local DB is empty
@@ -56,14 +57,14 @@ export function HomeScreen() {
     queryKey: ["initialSync"],
     queryFn: async () => {
       const shouldSync = await needsSync();
-      const isEmpty = allAartis.length === 0;
+      const isEmpty = aartiCount === 0;
       if (shouldSync || isEmpty) {
         await fetchAndSyncAartis();
         await invalidateAllAartis();
       }
       return true;
     },
-    enabled: !isLoading,
+    enabled: !isCountLoading,
     staleTime: Infinity,
   });
 
@@ -90,10 +91,28 @@ export function HomeScreen() {
     }
   }, [invalidateAllAartis]);
 
-  const todaysAarti =
-    featured.length > 0 ? featured[Math.floor(Date.now() / 86400000) % featured.length] : null;
+  const todaysAarti = useMemo(
+    () =>
+      featured.length > 0 ? featured[Math.floor(Date.now() / 86400000) % featured.length] : null,
+    [featured],
+  );
 
-  if (isLoading && allAartis.length === 0) {
+  const featuredPreview = useMemo(() => featured.slice(0, 8), [featured]);
+
+  const renderFeaturedAarti = useCallback(
+    ({ item }: { item: (typeof featured)[number] }) => (
+      <AartiCard
+        aarti={item}
+        variant="featured"
+        onPress={() => router.push(`/aarti/${item.id}`)}
+        isFavorite={favoriteIds.has(item.id)}
+        onToggleFavorite={() => toggleFavorite(item.id)}
+      />
+    ),
+    [favoriteIds, router, toggleFavorite],
+  );
+
+  if (isCountLoading && aartiCount === 0) {
     return <DataSyncOverlay />;
   }
 
@@ -116,7 +135,10 @@ export function HomeScreen() {
         colors={[colors.gradientStart + "22", colors.surface]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        style={[styles.headerGradient, { paddingTop: insets.top + Spacing.xl }]}
+        style={[
+          styles.headerGradient,
+          { paddingTop: insets.top + Spacing.xl, paddingHorizontal: listPaddingHorizontal },
+        ]}
       >
         <AnimatedHomeMandala
           color={colors.primary}
@@ -148,7 +170,7 @@ export function HomeScreen() {
       {todaysAarti && (
         <View style={styles.section}>
           <SectionHeader title={t("home.todaysAarti")} />
-          <View style={styles.sectionPadded}>
+          <View style={[styles.sectionPadded, { paddingHorizontal: listPaddingHorizontal }]}>
             <AartiCard
               aarti={todaysAarti}
               variant="featured"
@@ -163,7 +185,7 @@ export function HomeScreen() {
       {/* Divine Collections - Category Grid */}
       <View style={styles.section}>
         <SectionHeader title={t("home.collections")} />
-        <View style={styles.categoryGrid}>
+        <View style={[styles.categoryGrid, { paddingHorizontal: listPaddingHorizontal }]}>
           {categories.map((cat) => (
             <CategoryCard
               key={cat.name}
@@ -185,20 +207,15 @@ export function HomeScreen() {
             onAction={() => router.push("/search")}
           />
           <FlatList
-            data={featured.slice(0, 8)}
+            data={featuredPreview}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalList}
+            contentContainerStyle={[
+              styles.horizontalList,
+              { paddingHorizontal: listPaddingHorizontal },
+            ]}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <AartiCard
-                aarti={item}
-                variant="featured"
-                onPress={() => router.push(`/aarti/${item.id}`)}
-                isFavorite={favoriteIds.has(item.id)}
-                onToggleFavorite={() => toggleFavorite(item.id)}
-              />
-            )}
+            renderItem={renderFeaturedAarti}
           />
         </View>
       )}
@@ -207,7 +224,7 @@ export function HomeScreen() {
       {recents.length > 0 && (
         <View style={styles.section}>
           <SectionHeader title={t("home.continueReading")} />
-          <View style={styles.sectionPadded}>
+          <View style={[styles.sectionPadded, { paddingHorizontal: listPaddingHorizontal }]}>
             {recents.map((item) => (
               <AartiCard
                 key={item.id}
@@ -236,7 +253,6 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingBottom: Spacing.xl,
-    paddingHorizontal: Spacing.xl,
     overflow: "hidden",
   },
   headerRow: {
@@ -261,16 +277,12 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xl,
   },
   sectionPadded: {
-    paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
   },
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
   },
-  horizontalList: {
-    paddingHorizontal: Spacing.xl,
-  },
+  horizontalList: {},
 });

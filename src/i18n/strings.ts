@@ -177,11 +177,15 @@ const translations = {
     mr: "भक्तीने बनवलेले • आरती संग्रह",
     en: "Made with devotion • Aarti Sangrah",
   },
-  "settings.syncSuccess": { hi: "सफल", mr: "यशस्वी", en: "Success" },
+  "settings.syncSuccess": {
+    hi: "आरतियाँ रीफ्रेश हो गईं",
+    mr: "आरत्या रिफ्रेश झाल्या",
+    en: "Aartis refreshed",
+  },
   "settings.syncSuccessMsg": {
-    hi: "आरतियाँ क्लाउड से रीफ्रेश हो गई हैं।",
-    mr: "आरत्या क्लाउडवरून रिफ्रेश झाल्या आहेत.",
-    en: "Aartis have been refreshed from the cloud.",
+    hi: "नवीनतम आरतियाँ अब उपलब्ध हैं।",
+    mr: "नवीनतम आरत्या आता उपलब्ध आहेत.",
+    en: "The latest aartis are now available.",
   },
   "settings.syncNoInternet": {
     hi: "इंटरनेट नहीं है",
@@ -270,8 +274,8 @@ const translations = {
   },
 
   // ── Category Card ─────────────────────────────────────────────────
-  "categoryCard.aarti": { hi: "आरती", mr: "आरती", en: "aarti" },
-  "categoryCard.aartis": { hi: "आरतियाँ", mr: "आरत्या", en: "aartis" },
+  "categoryCard.record": { hi: "आरती", mr: "आरती", en: "aarti" },
+  "categoryCard.records": { hi: "आरतियाँ", mr: "आरत्या", en: "aartis" },
 
   // ── Generic ───────────────────────────────────────────────────────
   "generic.loading": { hi: "लोड हो रहा है...", mr: "लोड होत आहे...", en: "Loading..." },

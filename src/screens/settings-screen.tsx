@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AnimatedHomeMandala, AppModal, AppText } from "@/src/components";
 import { APP_VERSION, PLAY_STORE_URL, Radius, Spacing, THINKERCART_URL } from "@/src/constants";
-import { useInvalidateAllAartis, useT, useTheme } from "@/src/hooks";
+import { useInvalidateAllAartis, useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 import {
   cancelAllNotifications,
@@ -45,6 +45,7 @@ export function SettingsScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
+  const { readingPaddingHorizontal } = useResponsiveLayout();
   const invalidateAllAartis = useInvalidateAllAartis();
   const {
     themeMode,
@@ -71,11 +72,17 @@ export function SettingsScreen() {
   }, []);
 
   const handleShareApp = useCallback(async () => {
+    const shareTitle = t("detail.appName");
     const messageText = `${t("settings.shareAppMessage")}\n\n${PLAY_STORE_URL}`;
+
     try {
-      await Share.share({ message: messageText, title: t("detail.appName") });
+      await Share.share({
+        message: messageText,
+        title: shareTitle,
+        url: PLAY_STORE_URL,
+      });
     } catch {
-      // user cancelled or share not available
+      // User cancelled or sharing is unavailable.
     }
   }, [t]);
 
@@ -134,7 +141,7 @@ export function SettingsScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingHorizontal: readingPaddingHorizontal }]}>
           <AnimatedHomeMandala
             color={colors.primary}
             size={260}
@@ -145,7 +152,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Theme Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <AppText variant="labelLg" color={colors.primary} style={styles.sectionTitle}>
             {t("settings.appearance")}
           </AppText>
@@ -186,7 +193,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Font Size Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}>
             <AppText variant="titleSm">{t("settings.textSize")}</AppText>
             <AppText variant="bodySm" color={colors.onSurfaceVariant}>
@@ -229,7 +236,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Language Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}>
             <AppText variant="titleSm">{t("settings.language")}</AppText>
             <AppText variant="bodySm" color={colors.onSurfaceVariant}>
@@ -263,7 +270,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Notifications Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <AppText variant="labelLg" color={colors.primary} style={styles.sectionTitle}>
             {t("settings.notifications")}
           </AppText>
@@ -332,7 +339,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Data Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <AppText variant="labelLg" color={colors.primary} style={styles.sectionTitle}>
             {t("settings.data")}
           </AppText>
@@ -364,7 +371,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Share App */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <Pressable
             onPress={handleShareApp}
             style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
@@ -382,7 +389,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Help & FAQ */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <Pressable
             onPress={() => router.push("/help")}
             style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
@@ -400,7 +407,7 @@ export function SettingsScreen() {
         </View>
 
         {/* Privacy Policy */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <Pressable
             onPress={() => router.push("/privacy")}
             style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest }]}
@@ -418,7 +425,7 @@ export function SettingsScreen() {
         </View>
 
         {/* About Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: readingPaddingHorizontal }]}>
           <AppText variant="labelLg" color={colors.primary} style={styles.sectionTitle}>
             {t("settings.about")}
           </AppText>
@@ -473,7 +480,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: Spacing.xl,
-    paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
     overflow: "hidden",
   },
@@ -483,7 +489,6 @@ const styles = StyleSheet.create({
     top: -20,
   },
   section: {
-    paddingHorizontal: Spacing.xl,
     marginTop: Spacing.lg,
     gap: Spacing.sm,
   },

@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppButton, AppText } from "@/src/components";
 import { REQUEST_FORM_URL, Radius, Spacing } from "@/src/constants";
-import { useT, useTheme } from "@/src/hooks";
+import { useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import type { TranslationKey } from "@/src/i18n";
 
 const FAQ_ITEMS: { q: TranslationKey; a: TranslationKey }[] = [
@@ -22,10 +22,16 @@ export function HelpScreen() {
   const { colors } = useTheme();
   const t = useT();
   const router = useRouter();
+  const { readingPaddingHorizontal } = useResponsiveLayout();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
-      <View style={[styles.toolbar, { backgroundColor: colors.surface }]}>
+      <View
+        style={[
+          styles.toolbar,
+          { backgroundColor: colors.surface, paddingHorizontal: readingPaddingHorizontal },
+        ]}
+      >
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
         </Pressable>
@@ -35,7 +41,7 @@ export function HelpScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingHorizontal: readingPaddingHorizontal }]}
         showsVerticalScrollIndicator={false}
       >
         <AppText variant="bodySm" color={colors.onSurfaceVariant} style={styles.intro}>
@@ -87,7 +93,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.md,
   },
@@ -95,7 +100,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
   },
   intro: {

@@ -7,12 +7,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AartiList, AnimatedHomeMandala, AppText, EmptyState, LoadingView } from "@/src/components";
 import { Spacing } from "@/src/constants";
 import { getFavoriteAartis } from "@/src/database";
-import { useT, useTheme } from "@/src/hooks";
+import { useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import { useFavoritesStore } from "@/src/store";
 
 export function FavoritesScreen() {
   const { colors } = useTheme();
   const t = useT();
+  const { listPaddingHorizontal } = useResponsiveLayout();
   const router = useRouter();
   const { favoriteIds } = useFavoritesStore();
 
@@ -28,7 +29,7 @@ export function FavoritesScreen() {
   if (favorites.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
-        <View style={styles.headerSection}>
+        <View style={[styles.headerSection, { paddingHorizontal: listPaddingHorizontal }]}>
           <AnimatedHomeMandala
             color={colors.primary}
             size={220}
@@ -50,7 +51,7 @@ export function FavoritesScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={["top"]}>
-      <View style={styles.headerSection}>
+      <View style={[styles.headerSection, { paddingHorizontal: listPaddingHorizontal }]}>
         <AnimatedHomeMandala
           color={colors.primary}
           size={220}
@@ -74,7 +75,6 @@ const styles = StyleSheet.create({
   },
   headerSection: {
     paddingTop: Spacing.xl,
-    paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
     gap: Spacing.xs,
     overflow: "hidden",

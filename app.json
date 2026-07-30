@@ -2,8 +2,8 @@
   "expo": {
     "name": "Aarti Sangrah",
     "slug": "aarti-sangrah",
-    "version": "1.0.2",
-    "orientation": "portrait",
+    "version": "1.0.3",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "aartisangrah",
     "userInterfaceStyle": "automatic",
@@ -22,7 +22,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.thinkercart.aartisangrah",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.RECEIVE_BOOT_COMPLETED",
@@ -61,7 +61,9 @@
           "color": "#f97316",
           "defaultChannel": "default"
         }
-      ]
+      ],
+      "./plugins/with-android-large-screen-support",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

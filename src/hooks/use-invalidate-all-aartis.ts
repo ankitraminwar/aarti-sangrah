@@ -6,6 +6,7 @@ export function useInvalidateAllAartis() {
   return useCallback(
     () =>
       Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["aartiCount"] }),
         queryClient.invalidateQueries({ queryKey: ["allAartis"] }),
         queryClient.invalidateQueries({ queryKey: ["categories"] }),
         queryClient.invalidateQueries({ queryKey: ["featured"] }),
