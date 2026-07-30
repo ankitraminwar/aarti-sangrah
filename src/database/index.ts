@@ -3,6 +3,31 @@ import type { Aarti, RecentAarti } from "@/src/types";
 import { CATEGORY_ALIAS_MAP } from "@/src/types";
 import * as SQLite from "expo-sqlite";
 
+/** Normalize language names for comparison (case-insensitive) */
+function normalizeLanguageName(lang: string): string {
+  return lang.trim().toLowerCase();
+}
+
+/** Map UI language codes to stored language name patterns */
+function getLanguagePatterns(code: string): string[] {
+  // code can be: hi, mr, en, or a full language name like "Hindi", "Marathi"
+  const normalized = normalizeLanguageName(code);
+  if (normalized === "hi") return ["hindi"];
+  if (normalized === "mr") return ["marathi"];
+  if (normalized === "en") return ["english"];
+  if (normalized === "sa") return ["sanskrit", "संस्कृत"];
+  // If it's already a full name, return it as-is
+  return [normalized];
+}
+
+/** Check if stored language matches filter ("all" matches everything, otherwise flexible comparison) */
+function languageMatches(storedLanguage: string, filterLanguage: string | "all"): boolean {
+  if (filterLanguage === "all") return true;
+  const patterns = getLanguagePatterns(filterLanguage);
+  const normalized = normalizeLanguageName(storedLanguage);
+  return patterns.some((pattern) => normalized === pattern || normalized.includes(pattern));
+}
+
 let db: SQLite.SQLiteDatabase | null = null;
 let initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let ftsSupported = false;
@@ -102,18 +127,6 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
     }
     await database.runAsync(
       "INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('aliases_v1', 'true')",
-    );
-  }
-
-  // Migration: normalise type field to lowercase (API now sends some types with
-  // a capital first character e.g. "Ashtak", "Prayer", "Stotra", "Stuti").
-  const typesNormalized = await database.getFirstAsync<{ value: string }>(
-    "SELECT value FROM sync_meta WHERE key = 'types_lowercase_v1'",
-  );
-  if (!typesNormalized) {
-    await database.runAsync("UPDATE aartis SET type = LOWER(type)");
-    await database.runAsync(
-      "INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('types_lowercase_v1', 'true')",
     );
   }
 
@@ -223,12 +236,19 @@ export async function upsertAartis(aartis: readonly Aarti[]): Promise<void> {
   }
 }
 
-export async function getAllAartis(): Promise<Aarti[]> {
+export async function getAllAartis(language: string | "all" = "all"): Promise<Aarti[]> {
   const database = await getDatabase();
   const rows = await database.getAllAsync<Record<string, unknown>>(
     'SELECT * FROM aartis ORDER BY "order" ASC',
   );
-  return rows.map(mapRowToAarti);
+  const aartis = rows.map(mapRowToAarti);
+
+  // Filter by language in-memory (case-insensitive)
+  if (language === "all") {
+    return aartis;
+  }
+
+  return aartis.filter((aarti) => languageMatches(aarti.language, language));
 }
 
 export async function getAartiCount(): Promise<number> {
@@ -268,7 +288,10 @@ export async function getCategories(): Promise<
   );
 }
 
-export async function searchAartis(query: string): Promise<Aarti[]> {
+export async function searchAartis(
+  query: string,
+  language: string | "all" = "all",
+): Promise<Aarti[]> {
   const database = await getDatabase();
 
   if (ftsSupported) {
@@ -286,7 +309,13 @@ export async function searchAartis(query: string): Promise<Aarti[]> {
          ORDER BY a."order" ASC`,
         { $q: ftsPattern },
       );
-      return rows.map(mapRowToAarti);
+      let results = rows.map(mapRowToAarti);
+
+      // Filter by language in-memory (case-insensitive)
+      if (language !== "all") {
+        results = results.filter((aarti) => languageMatches(aarti.language, language));
+      }
+      return results;
     } catch {
       // Ignore inner crash and fallback
     }
@@ -299,7 +328,13 @@ export async function searchAartis(query: string): Promise<Aarti[]> {
      ORDER BY "order" ASC`,
     { $q: pattern },
   );
-  return rows.map(mapRowToAarti);
+  let results = rows.map(mapRowToAarti);
+
+  // Filter by language in-memory (case-insensitive)
+  if (language !== "all") {
+    results = results.filter((aarti) => languageMatches(aarti.language, language));
+  }
+  return results;
 }
 
 export async function getFeaturedAartis(): Promise<Aarti[]> {

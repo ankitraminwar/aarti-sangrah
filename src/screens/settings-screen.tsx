@@ -72,11 +72,17 @@ export function SettingsScreen() {
   }, []);
 
   const handleShareApp = useCallback(async () => {
+    const shareTitle = t("detail.appName");
     const messageText = `${t("settings.shareAppMessage")}\n\n${PLAY_STORE_URL}`;
+
     try {
-      await Share.share({ message: messageText, title: t("detail.appName") });
+      await Share.share({
+        message: messageText,
+        title: shareTitle,
+        url: PLAY_STORE_URL,
+      });
     } catch {
-      // user cancelled or share not available
+      // User cancelled or sharing is unavailable.
     }
   }, [t]);
 

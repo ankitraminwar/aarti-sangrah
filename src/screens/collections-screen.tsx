@@ -10,6 +10,7 @@ import { Radius, Spacing } from "@/src/constants";
 import { getAllAartis } from "@/src/database";
 import { useResponsiveLayout, useT, useTheme } from "@/src/hooks";
 import { useAppStore } from "@/src/store";
+import type { Aarti } from "@/src/types";
 import { getLocalizedType } from "@/src/utils";
 
 interface TypeOption {
@@ -25,9 +26,9 @@ export function CollectionsScreen() {
   const language = useAppStore((s) => s.language);
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  const { data: allAartis = [], isLoading } = useQuery({
+  const { data: allAartis = [], isLoading } = useQuery<Aarti[]>({
     queryKey: ["allAartis"],
-    queryFn: getAllAartis,
+    queryFn: async () => getAllAartis("all"),
   });
 
   const typeOptions = useMemo<TypeOption[]>(() => {

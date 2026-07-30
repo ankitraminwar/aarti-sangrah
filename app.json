@@ -62,7 +62,8 @@
           "defaultChannel": "default"
         }
       ],
-      "./plugins/with-android-large-screen-support"
+      "./plugins/with-android-large-screen-support",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
